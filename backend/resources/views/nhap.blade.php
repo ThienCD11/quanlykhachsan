@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bài tập nhanh 2</title>
     <style>
-        .box{
+        .box{ 
             width: 1000px;
             height: 400px;
             margin: 50px auto;
@@ -15,7 +15,7 @@
             justify-content: space-evenly;
             text-align: left;           
         }
-        .box h2{
+        .box h2{ 
             text-align: center;
         }
         .box1{
@@ -87,6 +87,10 @@
             $soTienGiam = $tongTien * ($khuyenMai / 100);
             $thanhTien = $tongTien - $soTienGiam;
         }
+        ?>
+
+        <?php
+        echo date('Y-m-d H:i:s');
         ?>
 
     <div class="box">
