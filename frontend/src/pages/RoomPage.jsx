@@ -10,6 +10,7 @@ const RoomsPage = () => {
     { id: 1, name: "Phòng Deluxe", price: 1200000, facilities: ["Giường đôi", "Điều hòa", "TV"], capacity: 2 },
     { id: 2, name: "Phòng Standard", price: 800000, facilities: ["Giường đơn", "Điều hòa"], capacity: 1 },
     { id: 3, name: "Phòng Family", price: 2000000, facilities: ["2 Giường đôi", "Điều hòa", "Ban công"], capacity: 4 },
+    { id: 4, name: "Phòng Superior", price: 1800000, facilities: ["2 Giường đôi", "Điều hòa", "TV"], capacity: 4 },
   ];
 
   return (
