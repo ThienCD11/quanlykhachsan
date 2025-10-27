@@ -1,30 +1,61 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import SearchBar from "../components/SearchBar";
 import RoomCard from "../components/RoomCard";
+import SearchRoom from "../components/SearchRoom";
+import "../css/RoomPage.css"; // 👈 nhớ tạo file này
 
 const RoomsPage = () => {
-  // Demo dữ liệu, sau này sẽ fetch từ BE
-  const rooms = [
-    { id: 1, name: "Phòng Deluxe", price: 1200000, facilities: ["Giường đôi", "Điều hòa", "TV"], capacity: 2 },
-    { id: 2, name: "Phòng Standard", price: 800000, facilities: ["Giường đơn", "Điều hòa"], capacity: 1 },
-    { id: 3, name: "Phòng Family", price: 2000000, facilities: ["2 Giường đôi", "Điều hòa", "Ban công"], capacity: 4 },
-    { id: 4, name: "Phòng Superior", price: 1800000, facilities: ["2 Giường đôi", "Điều hòa", "TV"], capacity: 4 },
-  ];
+  const [rooms, setRooms] = useState([]);
 
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/rooms")
+      .then((res) => res.json())
+      .then((data) => setRooms(data))
+      .catch((err) => console.error("Lỗi:", err));
+  }, []);
+ 
   return (
     <>
       <Header />
-      <div style={{ padding: "20px" }}>
-        <h2>Danh sách phòng</h2>
-        <SearchBar />
-        <div style={{ display: "flex", flexWrap: "wrap" }}>
-          {rooms.map((room) => (
-            <RoomCard key={room.id} room={room} />
-          ))}
+      <section style={{ padding: "10px", backgroundColor: "#F0F0F0", }}>
+      <h1 style={{ textAlign: "center" ,marginBottom: "0px",}}>Danh sách phòng</h1>
+      <hr
+        style={{
+          width: "300px",
+          margin: "0 auto",
+          border: "1px solid black",
+          borderRadius: "2px",
+        }}
+      />
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "16px",
+          color: "navy",
+          marginTop: "5px",
+          marginBottom: "20px",
+        }}
+      >
+        Hãy lựa chọn căn phòng phù hợp cho kỳ nghỉ của bạn!
+      </p> 
+
+      <div className="rooms-layout">
+        {/* Cột trái - Thanh tìm kiếm */}
+        <div className="rooms-search">
+          <SearchRoom />
+        </div>
+
+        {/* Cột phải - Danh sách phòng */}
+        <div className="rooms-list">
+          {rooms.length === 0 ? (
+            <h1 className="loading">Đang tải thông tin phòng...</h1>
+          ) : (
+            rooms.map((room) => <RoomCard key={room.id} room={room} />)
+          )}
         </div>
       </div>
+      </section>
       <Footer />
     </>
   );

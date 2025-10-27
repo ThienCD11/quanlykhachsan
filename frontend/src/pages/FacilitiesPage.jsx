@@ -1,62 +1,68 @@
-// src/pages/FacilitiesPage.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import FacilityCard from "../components/FacilityCard";
-import { FaWifi, FaSwimmer, FaConciergeBell, FaDumbbell } from "react-icons/fa";
-
-
-const facilities = [
-  {
-    id: 1,
-    name: "Wifi miễn phí",
-    icon: "📶",
-    description: "Kết nối Internet tốc độ cao trong toàn bộ khách sạn."
-  },
-  {
-    id: 2,
-    name: "Bể bơi",
-    icon: "🏊",
-    description: "Bể bơi ngoài trời rộng rãi, thoải mái thư giãn."
-  },
-  {
-    id: 3,
-    name: "Phòng Gym",
-    icon: "💪",
-    description: "Trang bị đầy đủ dụng cụ tập luyện hiện đại."
-  },
-  {
-    id: 4,
-    name: "Dịch vụ phòng",
-    icon: "🛎️",
-    description: "Hỗ trợ 24/7, luôn sẵn sàng phục vụ nhu cầu của bạn."
-  }
-];
 
 const FacilitiesPage = () => {
+  const [facilities, setFacilities] = useState([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/facilities")
+      .then((res) => {
+        if (!res.ok) throw new Error("Lỗi kết nối API");
+        return res.json();
+      })
+      .then((data) => setFacilities(data))
+      .catch((err) => console.error("Lỗi:", err));
+  }, []);
+
   return (
-    <div>
+    <>
       <Header />
-      <section className="facilities-section" style={{ padding: "20px" }}>
-        <h2>Tiện nghi của chúng tôi</h2>
+      <section style={{ padding: "10px", textAlign: "center", backgroundColor: "#F0F0F0", }}>
+      <h1 style={{ textAlign: "center" ,marginBottom: "0px",}}>Tiện nghi khách sạn</h1>
+      <hr
+        style={{
+          width: "350px",
+          margin: "0 auto",
+          border: "1px solid black",
+          borderRadius: "2px",
+        }}
+      />
+      <p
+        style={{
+          textAlign: "center",
+          fontSize: "16px",
+          color: "navy",
+          marginTop: "5px",
+          marginBottom: "20px",
+        }}
+      >
+        Trải nghiệm các tiện nghi của chúng tôi giúp kỳ nghỉ của bạn thêm trọn vẹn!
+      </p>
+
+      {/* Nếu đang load hoặc rỗng */}
+      {facilities.length === 0 ? (
+        <h1 style={{ textAlign: "center", margin: "200px 50px 500px 50px" }}>Đang tải thông tin tiện nghi...</h1>
+      ) : (
         <div
-          className="facilities-list"
           style={{
             display: "flex",
             flexWrap: "wrap",
+            justifyContent: "center",
             gap: "20px",
-            justifyContent: "center"
+            marginBottom: "70px"
           }}
         >
-          {facilities.map((facility) => (
-            <FacilityCard key={facility.id} facility={facility} />
+          {facilities.map((f) => (
+            <FacilityCard key={f.id} facility={f} />
           ))}
         </div>
+      )}
       </section>
       <Footer />
-    </div>
+    </>
   );
 };
-
 
 export default FacilitiesPage;

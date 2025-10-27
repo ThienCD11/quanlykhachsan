@@ -1,0 +1,134 @@
+.room-card {
+  /* border: 1px solid #061797; */
+  border-radius: 8px;
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  overflow: hidden;
+  background: #fff;
+  transition: all 0.3s ease;
+  padding: 15px;
+  width: 100%;
+  margin-bottom: 5px;
+  box-sizing: border-box;
+}
+
+.room-image {
+  width: 45%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.room-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 40px;
+}
+
+.room-text {
+  flex: 1;
+}
+
+.room-action {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-right: 50px;
+}
+
+.room-logo {
+  width: 150px;
+  height: 120px;
+  object-fit: contain;
+}
+
+/* --- PHẦN ĐÃ SỬA --- */
+/* Đổi từ ".room-card button" thành class ".book-now-btn" của thẻ Link */
+.book-now-btn {
+  width: 140px;
+  height: 45px;
+  background: #060687;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  
+  /* Thêm các thuộc tính này để <Link> trông giống hệt button */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none; /* Bỏ gạch chân của link */
+}
+
+.room-card:hover {
+  transform: scale(1.015);
+}
+
+/* Đổi từ ".room-card button:hover" thành ".book-now-btn:hover" */
+.book-now-btn:hover {
+  transform: scale(1.015);
+  background-color: #040461; /* Thêm hiệu ứng đổi màu nền cho rõ */
+}
+
+
+/* --- Responsive co giãn mượt --- */
+/* Lưu ý: Dùng transform: scale cho responsive không phải là cách tốt nhất 
+   vì nó thu nhỏ cả chữ, gây khó đọc. Nhưng tôi giữ nguyên theo yêu cầu. */
+@media (max-width: 1300px) {
+  .room-card {
+    transform: scale(0.95);
+    margin: 0 auto;
+  }
+}
+@media (max-width: 1100px) {
+  .room-card {
+    transform: scale(0.85);
+    margin: 0 auto;
+  }
+}
+@media (max-width: 900px) {
+  .room-card {
+    transform: scale(0.75);
+    margin: 0 auto;
+  }
+}
+
+/* Mức nhỏ nhất → cấu trúc dọc */
+@media (max-width: 600px) {
+  .room-card {
+    flex-direction: column;
+    align-items: center;
+    transform: scale(1);
+  }
+
+  .room-image {
+    width: 100%;
+    height: 290px;
+  }
+
+  .room-info {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    padding: 15px 10px;
+  }
+
+  .room-text {
+    width: 60%;
+    margin-left: 20px;
+  }
+
+  .room-action {
+    width: 40%;
+    margin-top: 25px;
+  }
+}

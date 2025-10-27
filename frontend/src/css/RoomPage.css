@@ -1,0 +1,93 @@
+/* ===== Header title ===== */
+.rooms-header {
+  text-align: center;
+  margin-top: 0px;
+}
+
+.rooms-header h2 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.rooms-header hr {
+  width: 250px;
+  margin: 0 auto;
+  border: 1px solid black;
+  border-radius: 2px;
+}
+
+.rooms-header p {
+  font-size: 16px;
+  color: navy;
+  margin-top: 5px;
+  margin-bottom: 15px;
+}
+
+/* ===== Layout chính ===== */
+.rooms-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 40px;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  margin-bottom: 60px;
+}
+
+.rooms-search {
+  flex: 0 0 25%;
+  max-width: 350px;
+  transition: all 0.4s ease;
+}
+
+.rooms-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  align-items: center;
+  transition: all 0.4s ease;
+}
+
+/* ===== Khi thu nhỏ, co mượt ===== */
+@media (max-width: 1000px) {
+  .rooms-search {
+    flex: 0 0 22%;
+    transform: scale(0.95);
+  }
+}
+
+@media (max-width: 850px) {
+  .rooms-search {
+    flex: 0 0 18%;
+    transform: scale(0.85);
+  }
+}
+
+/* ===== Khi cực nhỏ (dưới 700px): đổi sang bố cục dọc ===== */
+@media (max-width: 700px) {
+  .rooms-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .rooms-search {
+    width: 100%;
+    transform: scale(1);
+  }
+
+  .rooms-list {
+    width: 100%;
+  }
+}
+
+/* ===== Loading text ===== */
+.loading {
+  text-align: center;
+  margin-top: 200px;
+  color: #333;
+}

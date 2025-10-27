@@ -6,13 +6,16 @@ import Room from "../components/Room";
 import Facility from "../components/Facility";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
+import About from "../components/About";
 
 export default function HomePage() {
   return (
-    <div>
+    <div style={{background: "#F0F0F0"}}>
       <Header />
-      <Slider />
-      <SearchBar />
+      <Slider>
+        <SearchBar />
+      </Slider> 
+      <About />
       <Room />
       <Facility />
       <Contact />

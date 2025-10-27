@@ -17,11 +17,3 @@ use App\Models\User;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/nhap', function () {
-    return view('nhap');
-});
-
-Route::get('/code', function () {
-    return view('atata');
-});

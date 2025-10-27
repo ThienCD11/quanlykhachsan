@@ -5,20 +5,34 @@ const FacilityCard = ({ facility }) => {
     <div
       className="facility-card"
       style={{
-        border: "1px solid #ddd",
-        padding: "16px",
+        padding: "15px",
         margin: "10px",
-        borderRadius: "8px",
+        borderRadius: "10px",
         textAlign: "center",
-        width: "220px",
-        background: "#f9f9f9"
+        width: "230px",
+        cursor: "pointer",
+        background: "white",
+        boxShadow: "8px 8px 15px rgba(0, 0, 0, 0.5)",
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = "translateY(-5px)";
+        e.currentTarget.style.boxShadow = "8px 8px 10px rgba(0, 0, 0, 0.3)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = "translateY(0)";
+        e.currentTarget.style.boxShadow = "8px 8px 15px rgba(0, 0, 0, 0.5)";
       }}
     >
-      <div style={{ fontSize: "40px", marginBottom: "10px" }}>
-        {facility.icon}
-      </div>
-      <h3>{facility.name}</h3>
-      <p>{facility.description}</p>
+      
+      <img
+          src={facility.icon}
+          alt={facility.name}
+          style={{ width: "50%", borderRadius: "3px",
+            objectFit: "cover", margin: "15px 5px -5px 5px",}}
+        />
+      <h3 style={{ color: "#00008b", marginBottom: "8px" }}>{facility.name}</h3>
+      <p style={{ fontSize: "13px", color: "#000000ff", textAlign: "Justify"}}>{facility.description}</p>
     </div>
   );
 };

@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Facility;
 
 class FacilityController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $facilities = [
-            ["id" => 1, "name" => "Game", "icon" => "🎮"],
-            ["id" => 2, "name" => "Bồn tắm", "icon" => "🛁"],
-            ["id" => 3, "name" => "Radio", "icon" => "📻"],
-            ["id" => 4, "name" => "TV", "icon" => "📺"],
-            ["id" => 5, "name" => "Giường", "icon" => "🛌"],
-        ];
+        $facilities = Facility::all()->map(function ($facilities) {
+            return [
+                'name' => $facilities->name,
+                'icon' => asset($facilities->icon),
+                'description' => $facilities->description,
+            ];
+        });
         return response()->json($facilities);
     }
 }
