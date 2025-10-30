@@ -19,7 +19,7 @@ const FacilitiesPage = () => {
   return (
     <>
       <Header />
-      <section style={{ padding: "10px", textAlign: "center", backgroundColor: "#F0F0F0", }}>
+      <section style={{ padding: "10px", textAlign: "center", backgroundColor: "#F0F0F0", minHeight: 'calc(100vh - 120px)'  }}>
       <h1 style={{ textAlign: "center" ,marginBottom: "0px",}}>Tiện nghi khách sạn</h1>
       <hr
         style={{

@@ -70,7 +70,7 @@ const ContactPage = () => {
   return (
     <div>
       <Header />
-      <section style={{ padding: "20px", textAlign: "center", backgroundColor: "#F0F0F0", }}>
+      <section style={{ padding: "20px", textAlign: "center", backgroundColor: "#F0F0F0", minHeight: 'calc(100vh - 100px)'  }}>
         <h1 style={{ textAlign:"center", marginBottom: "0px", marginTop:"10px", }}>Liên hệ chúng tôi</h1>   
         <hr style={{
           width: "300px",

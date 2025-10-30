@@ -9,6 +9,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from './pages/RegisterPage';
 import BookingPage from "./pages/BookingPage";
 import StatisticPage from "./pages/StatisticPage";
+import HistoryPage from './pages/HistoryPage';
 
 // 1. Tạo một Context để chia sẻ state 'user'
 export const AuthContext = createContext(null);
@@ -49,6 +50,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/booking/:roomId" element={<BookingPage />} />
           <Route path="/statistic/*" element={<StatisticPage />} />
+          <Route path="/history/*" element={<HistoryPage />} />
         </Routes>
       </Router>
     </AuthContext.Provider>

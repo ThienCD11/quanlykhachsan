@@ -1,12 +1,51 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // <<-- THÊM MỚI
 
 export default function SearchBar() {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [adults, setAdults] = useState(1);
+  const [error, setError] = useState(""); // <<-- THÊM MỚI: State cho lỗi
+  const navigate = useNavigate(); // <<-- THÊM MỚI: Hook để chuyển trang
 
   const handleSearch = () => {
+    setError(""); // Xóa lỗi cũ mỗi khi nhấn nút
 
+    // 1. Kiểm tra ngày tháng có được nhập chưa
+    if (!checkIn || !checkOut) {
+      setError("Vui lòng chọn cả ngày nhận phòng và trả phòng.");
+      return;
+    }
+
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Đặt về 0 giờ để so sánh ngày
+
+    // 2. Kiểm tra ngày nhận phòng
+    if (checkInDate < today) {
+      setError("Ngày nhận phòng phải là hôm nay hoặc một ngày sau đó.");
+      return;
+    }
+
+    // 3. Kiểm tra ngày trả phòng phải sau ngày nhận phòng
+    if (checkOutDate <= checkInDate) {
+      setError("Ngày trả phòng phải sau ngày nhận phòng.");
+      return;
+    }
+
+    // 4. Nếu mọi thứ hợp lệ -> Chuyển trang
+    console.log("Đang tìm kiếm với:", { checkIn, checkOut, adults });
+
+    // Tạo chuỗi query parameters
+    const queryParams = new URLSearchParams({
+        check_in: checkIn,
+        check_out: checkOut,
+        capacity: adults
+    });
+
+    // Chuyển hướng đến trang /rooms (RoomPage) với các tham số tìm kiếm
+    navigate(`/rooms?${queryParams.toString()}`);
   };
 
   return ( 
@@ -25,6 +64,13 @@ export default function SearchBar() {
       <h3 style={{ textAlign: "center", marginTop: "5px", color: "#0d0248ff" }}>
         Tìm Phòng Ngay
       </h3>
+
+      {/* THÊM MỚI: Hiển thị lỗi */}
+      {error && (
+        <p style={{ color: 'red', textAlign: 'center', margin: '5px 0' }}>
+          {error}
+        </p>
+      )}
 
       <div
         style={{
@@ -86,24 +132,27 @@ export default function SearchBar() {
             }}
           >
             {[1, 2, 3, 4, 5].map((num) => (
-              <option key={num} value={num}>
+              <option key={num} value={num}
+              onMouseEnter={(e) => (e.target.style.background = "#00008b")}
+              onMouseLeave={(e) => (e.target.style.background = "white")}
+              >
                 {num}
               </option>
             ))}
           </select>
         </div>
-
+        
         {/* Nút tìm phòng */}
         <div style={{ flex: 0.6, alignSelf: "flex-end" }}>
           <button
-            onClick={handleSearch}
+            onClick={handleSearch} // <<-- Đã kết nối hàm
             style={{
               width: "100%",
               padding: "10px",
               background: "#ffffffff",
               // border: "none",
               borderRadius: "5px",
-              color: "gray",
+              color: "black",
               fontWeight: "bold",
               cursor: "pointer",
               border: "1px solid #ccc",
@@ -117,7 +166,7 @@ export default function SearchBar() {
             onMouseLeave={(e) => {
               e.currentTarget.style.background = "white";
               e.currentTarget.style.transform = "scale(1)";
-              e.currentTarget.style.color = "gray";
+              e.currentTarget.style.color = "black";
             }}
           >
             Tìm Phòng

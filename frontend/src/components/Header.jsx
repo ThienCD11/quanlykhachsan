@@ -127,10 +127,14 @@ const Header = () => {
           Liên Hệ
         </NavLink>
 
-        {/* 5. HIỂN THỊ CÓ ĐIỀU KIỆN MỤC "THỐNG KÊ" */}
         {user && user.role === 'admin' && (
           <NavLink to="/statistic" style={navLinkStyle}>
             Thống Kê
+          </NavLink>
+        )}
+        {user && user.role === 'customer' && (
+          <NavLink to="/history" style={navLinkStyle}>
+            Lịch Sử
           </NavLink>
         )}
       </div>

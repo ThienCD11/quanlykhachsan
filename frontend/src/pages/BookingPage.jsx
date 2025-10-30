@@ -133,7 +133,7 @@ const BookingPage = () => {
   return (
     <div>
       <Header />
-      <section style={{ padding: "40px 20px", backgroundColor: "#F0F0F0" }}>
+      <section style={{ padding: "40px 20px", backgroundColor: "#F0F0F0", minHeight: 'calc(100vh - 60px)'  }}>
         <h2 style={{ textAlign: "center" ,marginBottom: "0px", marginTop:"-10px"}}>Thông tin đặt phòng</h2>
         <hr style={{
             width: "290px",
