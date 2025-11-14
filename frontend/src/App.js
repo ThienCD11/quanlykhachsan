@@ -10,6 +10,8 @@ import RegisterPage from './pages/RegisterPage';
 import BookingPage from "./pages/BookingPage";
 import StatisticPage from "./pages/StatisticPage";
 import HistoryPage from './pages/HistoryPage';
+import ScrollToTop from "./components/ScrollToTop";
+import StaBookingPage from "./pages/StaBookingPage";
 
 // 1. Tạo một Context để chia sẻ state 'user'
 export const AuthContext = createContext(null);
@@ -17,26 +19,46 @@ export const AuthContext = createContext(null);
 function App() {
   // 2. Lấy thông tin user từ localStorage (nếu có) khi tải ứng dụng
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem('user');
+    const savedUser = sessionStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
   });
+
+  const [token, setToken] = useState(() => sessionStorage.getItem('authToken'));
 
   // 3. Tự động lưu thông tin user vào localStorage mỗi khi state 'user' thay đổi
   useEffect(() => {
     if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('user', JSON.stringify(user));
     } else {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
     }
   }, [user]);
 
-  // 4. Dùng useMemo để tối ưu, tránh re-render không cần thiết
-  const authContextValue = useMemo(() => ({ user, setUser }), [user]);
+  // 2. THÊM useEffect MỚI ĐỂ LƯU TOKEN
+  useEffect(() => {
+    if (token) {
+      sessionStorage.setItem('authToken', token);
+    } else {
+      sessionStorage.removeItem('authToken');
+    }
+  }, [token]);
+
+  // 3. CẬP NHẬT CONTEXT VALUE (Quan trọng nhất)
+  // Giờ đây Context sẽ cung cấp cả 4 giá trị
+  const authContextValue = useMemo(() => ({
+    user,
+    setUser,
+    token,
+    setToken 
+  }), [user, token]); // Thêm 'token' vào dependency
 
   return (
     // 5. Cung cấp state 'user' và hàm 'setUser' cho toàn bộ ứng dụng
     <AuthContext.Provider value={authContextValue}>
       <Router>
+
+        <ScrollToTop />
+
         <Routes>
           {/* Các trang này (HomePage, RoomPage...) bên trong chúng có
             render <Header /> và <Footer />. Header sẽ tự động
@@ -49,12 +71,16 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/booking/:roomId" element={<BookingPage />} />
-          <Route path="/statistic/*" element={<StatisticPage />} />
           <Route path="/history/*" element={<HistoryPage />} />
+
+          <Route path="/statistic/*" element={<StatisticPage />} >
+            <Route path="bookings" element={<StaBookingPage />} />
+          </Route>
+          
         </Routes>
       </Router>
     </AuthContext.Provider>
   );
 }
-
+ 
 export default App;

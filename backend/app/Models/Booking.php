@@ -18,7 +18,7 @@ class Booking extends Model
         'booked_at', // Thêm vào nếu bạn muốn gán thủ công thay vì dùng default DB
         'price',
         'invoice_id',
-        // 'status', // Thêm nếu có cột status
+        'status', // Thêm nếu có cột status
     ];
 
     public function room(): BelongsTo

@@ -83,18 +83,18 @@ class BookingController extends Controller
             // 3. Tạo base invoice_id (phần đầu không đổi)
             $roomNamePrefix = strtoupper(substr($room->name, 0, 3));
             $currentDate = Carbon::now()->format('dm'); // NgàyTháng hiện tại
-            $baseInvoiceId = $validatedData['room_id'] . $roomNamePrefix . $currentDate; // Ví dụ: 1STA2710
+            
+            $roomIdPadded = str_pad($validatedData['room_id'], 2, '0', STR_PAD_LEFT); // Ví dụ: 01, 09, 10
+            $baseInvoiceId = $roomIdPadded . $roomNamePrefix . $currentDate; // Ví dụ: 01STA2710
 
-            // *** THAY ĐỔI LOGIC TẠO INVOICE_ID ĐỂ THÊM SỐ THỨ TỰ ***
             // Đếm số lượng booking trong ngày hôm nay có invoice_id bắt đầu bằng $baseInvoiceId
             $todayBookingsCount = Booking::where('invoice_id', 'like', $baseInvoiceId . 'S%')
-                                         ->whereDate('created_at', Carbon::today()) // Chỉ đếm booking tạo trong ngày hôm nay
-                                         ->count();
+                                        ->whereDate('created_at', Carbon::today())
+                                        ->count();
 
             // Tạo số thứ tự (S1, S2, ...)
             $sequenceNumber = $todayBookingsCount + 1;
-            $invoiceId = $baseInvoiceId . 'S' . $sequenceNumber; // Ví dụ: 1STA2710S1
-            // *** KẾT THÚC THAY ĐỔI ***
+            $invoiceId = $baseInvoiceId . 'S' . $sequenceNumber; // Ví dụ: 01STA2710S1
 
 
             // 4. Chuẩn bị dữ liệu để tạo Booking (giữ nguyên)
@@ -105,6 +105,7 @@ class BookingController extends Controller
                 'check_out' => $validatedData['check_out'],
                 'price' => $validatedData['price'],
                 'invoice_id' => $invoiceId, // Sử dụng invoiceId mới
+                'status' => 'Đã đặt phòng',
             ];
 
             // 5. Tạo booking mới (giữ nguyên)

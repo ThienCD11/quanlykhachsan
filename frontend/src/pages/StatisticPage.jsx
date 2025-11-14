@@ -8,7 +8,7 @@ import Footer from "../components/Footer";
 const StatisticPage = () => {
     // --- Styles remain the same ---
     const sidebarStyle = {
-        width: "250px",
+        width: "200px",
         backgroundColor: "navy",
         padding: "20px 10px",
         color: "white",
@@ -53,13 +53,31 @@ const StatisticPage = () => {
                         end
                         style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
                     >
-                        Thống Kê
+                        Thống Kê Tổng Quan
                     </NavLink>
                     <NavLink
                         to="/statistic/bookings"
                         style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
                     >
-                        Phòng Mới Đặt
+                        Yêu Cầu Đặt Phòng
+                    </NavLink>
+                    <NavLink
+                        to="/statistic/feedbacks"
+                        style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
+                    >
+                        Góp Ý & Đánh Giá
+                    </NavLink>
+                    <NavLink
+                        to="/statistic/rooms"
+                        style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
+                    >
+                        Danh Sách Phòng
+                    </NavLink>
+                                        <NavLink
+                        to="/statistic/customers"
+                        style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
+                    >
+                        Khách Hàng
                     </NavLink>
                     <NavLink
                         to="/statistic/revenue"
@@ -67,19 +85,6 @@ const StatisticPage = () => {
                     >
                         Doanh Thu
                     </NavLink>
-                    <NavLink
-                        to="/statistic/customers"
-                        style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
-                    >
-                        Khách Hàng
-                    </NavLink>
-                    <NavLink
-                        to="/statistic/rooms"
-                        style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}
-                    >
-                        Phòng
-                    </NavLink>
-                    {/* Add other NavLinks as needed */}
                 </div>
 
                 {/* Main Content Area */}

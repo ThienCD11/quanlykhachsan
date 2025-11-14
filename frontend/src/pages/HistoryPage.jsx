@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react"; // Thêm useContext
+import React, { useState, useEffect, useContext, useCallback } from "react"; // Thêm useContext
 import axios from "axios"; // Dùng axios cho nhất quán
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -11,36 +11,40 @@ const HistoryPage = () => {
   const [error, setError] = useState(null); // Thêm state lỗi
   const { user } = useContext(AuthContext); // Lấy user từ context
 
-  useEffect(() => {
-    if (user) {
-      setIsLoading(true);
-      setError(null); // Đã xóa dòng lặp
-
-      // const token = ... // Đã xóa dòng không dùng
-      
-      const apiUrl = `http://127.0.0.1:8000/api/histories?user_id=${user.id}`;
-
-      axios.get(apiUrl)
-        .then((res) => {
-          setHistories(res.data);
-        })
-        .catch((err) => {
-          console.error("Lỗi khi lấy lịch sử đặt phòng:", err);
-          
-          if (err.response && err.response.status === 422) {
-              setError("User ID không hợp lệ (lỗi từ backend).");
-          } else {
-              setError("Không thể tải lịch sử đặt phòng. Vui lòng thử lại sau.");
-          }
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } else {
-        setIsLoading(false);
-        setHistories([]);
+  // 2. TÁCH LOGIC TẢI DỮ LIỆU RA HÀM RIÊNG (SỬ DỤNG useCallback)
+  // useCallback giúp hàm này không bị tạo lại mỗi lần re-render,
+  // chỉ tạo lại khi 'user' thay đổi.
+  const fetchHistory = useCallback(() => {
+    if (!user) {
+      setIsLoading(false);
+      setHistories([]);
+      return;
     }
-  }, [user]);
+    
+    // Không set isLoading = true ở đây, để nó tải lại "âm thầm"
+    // (isLoading chỉ set ở useEffect)
+    setError(null);
+
+    const apiUrl = `http://127.0.0.1:8000/api/histories?user_id=${user.id}`;
+
+    axios.get(apiUrl)
+      .then((res) => {
+        setHistories(res.data);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy lịch sử đặt phòng:", err);
+        setError("Không thể tải lịch sử đặt phòng. Vui lòng thử lại sau.");
+      })
+      .finally(() => {
+        setIsLoading(false); // Set loading false sau khi xong
+      });
+  }, [user]); // Phụ thuộc vào 'user'
+
+  // 3. useEffect GIỜ CHỈ GỌI HÀM fetchHistory
+  useEffect(() => {
+    setIsLoading(true); // Chỉ set loading ở lần chạy đầu (hoặc khi user đổi)
+    fetchHistory();
+  }, [fetchHistory]); // Chạy lại khi hàm fetchHistory thay đổi (tức là khi user thay đổi)
 
   return (
     <>
@@ -69,7 +73,7 @@ const HistoryPage = () => {
 
       {/* Xử lý các trạng thái: Chưa đăng nhập, Đang tải, Lỗi, Có dữ liệu */}
       {!user ? (
-          <p style={{marginTop: '50px', fontSize: '1.2rem'}}>Vui lòng <a href="/login">đăng nhập</a> để xem lịch sử đặt phòng.</p>
+          <p style={{marginTop: '50px', fontSize: '1.2rem'}}>Vui lòng <a href="/login">Đăng nhập</a> để xem lịch sử đặt phòng.</p>
       ) : isLoading ? (
         <h1 style={{ textAlign: "center", margin: "100px 50px" }}>Đang tải lịch sử đặt phòng...</h1>
       ) : error ? (
@@ -89,7 +93,11 @@ const HistoryPage = () => {
           }}
         >
           {histories.map((h) => (
-            <HistoryCard key={h.id} history={h} />
+            <HistoryCard 
+              key={h.id} 
+              history={h} 
+              onUpdate={fetchHistory} 
+            />
           ))}
         </div>
       )}

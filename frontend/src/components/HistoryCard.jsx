@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState, useContext } from "react";
+import axios from "axios";
 
-const HistoryCard = ({ history }) => {
     const cardStyle = {
         backgroundColor: "white",
         padding: "20px",
@@ -28,7 +28,7 @@ const HistoryCard = ({ history }) => {
     };
     const strongDetailStyle = {
         ...detailStyle,
-        fontWeight: 'bold',
+        // fontWeight: 'bold',
         color: '#333',
     };
     const buttonContainerStyle = {
@@ -55,14 +55,33 @@ const HistoryCard = ({ history }) => {
         transition: 'background-color 0.2s'
     };
 
-    const handleCancelBooking = () => {
-        // TODO: Xử lý logic hủy đặt phòng (gọi API)
-        if(window.confirm(`Bạn có chắc muốn hủy đặt phòng ${history.room_name} không?`)) {
-            console.log("Hủy đặt phòng ID:", history.id);
-            // Gọi API hủy ở đây...
-            // alert("Đã gửi yêu cầu hủy (chức năng chưa hoàn thiện).");
+const HistoryCard = ({ history, onUpdate }) => {
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [cancelError, setCancelError] = useState("");
+
+  const handleCancelBooking = async () => {
+    if(window.confirm(`Bạn có chắc muốn hủy đặt phòng ${history.room_name} không?`)) {
+        setIsCanceling(true);
+        setCancelError("");
+
+
+        try {
+            // 5. GỌI API VỚI TOKEN (TỪ CONTEXT)
+            await axios.post(
+                `http://127.0.0.1:8000/api/bookings/${history.id}/customer-cancel`,
+                {},
+            );
+            
+            onUpdate(); // Tải lại trang cha
+            
+        } catch (err) {
+            console.error("Lỗi khi hủy đơn:", err);
+            setCancelError(err.response?.data?.message || "Lỗi: Không thể hủy đơn.");
+        } finally {
+            setIsCanceling(false);
         }
     }
+  }
 
     return (
         <div style={cardStyle}
@@ -76,29 +95,52 @@ const HistoryCard = ({ history }) => {
             }}
         >
             <h4 style={titleStyle}>Phòng {history.room_name}</h4>
-            <p style={detailStyle}>{history.price_per_night} / đêm</p>
+            <p style={detailStyle}>Chi phí: {history.price_per_night} / đêm</p>
             <p style={strongDetailStyle}>Ngày vào: {history.check_in}</p>
             <p style={strongDetailStyle}>Ngày trả: {history.check_out}</p>
-            <p style={detailStyle}>Thanh toán: {history.total_price}</p>
             <p style={detailStyle}>Ngày đặt: {history.booked_at}</p>
             <p style={detailStyle}>ID đơn: {history.invoice_id}</p>
+            <p style={detailStyle}>Thanh toán: {history.total_price}</p>
 
-            <div style={buttonContainerStyle}>
-                {/* Nút trạng thái (ví dụ: Đã Đặt) */}
-                <button style={statusButtonStyle} disabled>{history.status}</button>
-
-                {/* Nút Hủy Đặt Phòng (chỉ hiển thị nếu trạng thái cho phép hủy?) */}
-                {/* {history.status === 'Đã Đặt' && ( */}
+            {cancelError && <p style={{color: 'red', fontSize: '0.9rem', margin: '5px 0 0 0'}}>{cancelError}</p>}
+            
+            {/* 6. LOGIC HIỂN THỊ (giữ nguyên thiết kế cũ) */}
+        <div style={buttonContainerStyle}>
+            
+            {(history.status === 'Đã đặt phòng' || history.status === null) ? (
+                // TH1: 'Đã đặt phòng'
+                <>
+                    <button style={statusButtonStyle} disabled>
+                        {history.status || 'Đã đặt phòng'}
+                    </button>
                     <button
                         style={cancelButtonStyle}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#a91c2aff'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#dc3545'}
                         onClick={handleCancelBooking}
+                        disabled={isCanceling}
                     >
-                        Hủy Đặt Phòng
+                        {isCanceling ? "Đang hủy..." : "Hủy Đặt Phòng"}
                     </button>
-                {/* )} */}
-            </div>
+                </>
+            ) : (history.status === 'Đã hủy') ? (
+                // TH4: 'Đã hủy'
+                <button 
+                    style={{ ...statusButtonStyle,}} 
+                    disabled
+                >
+                    Đã hủy
+                </button>
+            ) : (
+                // Các trạng thái khác
+                <button 
+                    style={{ ...statusButtonStyle,}} 
+                    disabled
+                >
+                    {history.status}
+                </button>
+            )}
+        </div>
         </div>
     );
 };

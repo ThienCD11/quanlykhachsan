@@ -27,9 +27,13 @@ class LoginController extends Controller
         // 4. Kiểm tra user tồn tại VÀ mật khẩu đã mã hóa có khớp không
         if ($user && Hash::check($password, $user->password)) {
             // Đăng nhập thành công
+            $token = $user->createToken('authToken')->plainTextToken;
+
+            // 2. TRẢ VỀ RESPONSE CÓ BAO GỒM TOKEN
             return response()->json([
                 'success' => true,
-                'user' => $user // Trả về toàn bộ thông tin user (bao gồm cả 'role')
+                'user' => $user,
+                'token' => $token // <<-- THÊM DÒNG NÀY
             ]);
         } else {
             // Sai SĐT hoặc mật khẩu

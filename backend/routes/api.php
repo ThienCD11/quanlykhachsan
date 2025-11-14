@@ -9,6 +9,9 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\HistoryController;
+use App\Http\Controllers\StaBookingController;
+use App\Http\Controllers\BookingActionController;
+
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
@@ -49,14 +52,6 @@ Route::options('/bookings', function (Request $request) {
     ]);
 });
 
-// Route::options('/histories', function (Request $request) {
-//     return response()->json(null, 200, [
-//         'Access-Control-Allow-Origin' => 'http://localhost:3000',
-//         'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
-//         'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-//     ]);
-// });
-
 Route::options('/rooms', function (Request $request) {
     return response()->json(null, 200, [
         'Access-Control-Allow-Origin' => 'http://localhost:3000',
@@ -65,12 +60,31 @@ Route::options('/rooms', function (Request $request) {
     ]);
 });
 
+Route::options('/bookings/{id}/customer-cancel', function (Request $request) {
+    return response()->json(null, 200, [
+        'Access-Control-Allow-Origin' => 'http://localhost:3000',
+        'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
+        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
+    ]);
+});
+
 Route::get('/rooms', [RoomController::class, 'index']);
 Route::get('/rooms/{room}', [RoomController::class, 'show']);
 Route::get('/facilities', [FacilityController::class, 'index']);
 Route::post('/contact', [ContactController::class, 'store']);
-// Route::middleware('auth:sanctum')->post('/bookings', [BookingController::class, 'store']);
 Route::post('/bookings', [BookingController::class, 'store']);
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
 Route::get('/histories', [HistoryController::class, 'index']);
+Route::get('/statistic/bookings', [StaBookingController::class, 'index']);
+Route::post('/statistic/bookings/{id}/confirm', [StaBookingController::class, 'confirm']);
+Route::post('/statistic/bookings/{id}/cancel', [StaBookingController::class, 'cancel']);
+Route::post('/statistic/bookings/{id}/confirm-payment', [StaBookingController::class, 'confirmPayment']);
+Route::post('/bookings/{id}/customer-cancel', [BookingActionController::class, 'customerCancel']);
+
+
+// Route::middleware('auth:sanctum')->group(function () {
+// Route::post('/bookings/{id}/pay', [BookingActionController::class, 'processPayment']);
+// Route::post('/bookings/{id}/review', [BookingActionController::class, 'submitReview']);
+    
+// });

@@ -10,7 +10,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const { setUser, setToken  } = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     // --- DEBUG BẮT ĐẦU ---
@@ -29,8 +29,9 @@ const LoginPage = () => {
       });
 
       if (res.data.success) {
-        console.log("Đăng nhập thành công!", res.data.user);
+        console.log("Đăng nhập thành công! Response đầy đủ:", res.data);
         setUser(res.data.user);
+        setToken(res.data.token);
         // navigate(-1); // Quay lại trang trước
         navigate("/"); 
       }

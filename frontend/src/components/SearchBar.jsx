@@ -58,7 +58,7 @@ export default function SearchBar() {
         maxWidth: "1000px",
         margin: "5px auto",
         border: "0px solid #061797ff",
-        // marginTop: "-20px",
+        // marginTop: "-300px",
       }}
     >
       <h3 style={{ textAlign: "center", marginTop: "5px", color: "#0d0248ff" }}>
