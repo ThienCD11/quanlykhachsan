@@ -13,13 +13,14 @@ const Header = () => {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // 4. Hàm xử lý Đăng xuất
   const handleLogout = () => {
-    setUser(null); // Xóa state toàn cục
-    localStorage.removeItem('user'); // Xóa khỏi localStorage
-    setAccountMenuOpen(false); // Đóng menu
+   setUser(null); // Xóa state user
+  //  setToken(null); // Xóa state token
+   sessionStorage.removeItem('user');
+   sessionStorage.removeItem('authToken');
+   setAccountMenuOpen(false); // Đóng menu
     navigate('/'); // Điều hướng về trang chủ
-  };
+ };
 
   const navLinkStyle = ({ isActive }) => ({
     textDecoration: "none",
@@ -31,6 +32,10 @@ const Header = () => {
     borderRadius: "7px",
     background: isActive ? "#060f68ff" : "transparent",
   });
+
+  const avatarUrl = user?.avatar 
+    ? `http://127.0.0.1:8000/storage/${user.avatar}`
+    : 'https://placehold.co/40x40/e0e0e0/777?text=A';
 
   return (
     <nav
@@ -196,7 +201,7 @@ const Header = () => {
             >
               <img
                 // 7. Lấy avatar từ user
-                src={`http://localhost:8000/storage/${user.avatar}`}
+                src={avatarUrl}
                 alt="avatar"
                 style={{
                   width: "40px",
@@ -228,6 +233,10 @@ const Header = () => {
                 }}
               >
                 <button
+                  onClick={() => {
+                    navigate('/personal'); // Chuyển đến trang /personal
+                    setAccountMenuOpen(false); // Đóng menu
+                 }}
                   style={{
                     display: "block",
                     width: "100%",

@@ -1,0 +1,217 @@
+/* --- Styles Thẻ Card --- */
+.history-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 10px;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    gap: 5px;
+}
+
+.history-title {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    border-bottom: 1px solid #00008b;
+    padding-bottom: 5px;
+}
+
+.history-detail {
+    font-size: 1rem;
+    margin: 0;
+    color: #555;
+}
+
+.api-error {
+    color: red;
+    font-size: 0.9rem;
+    margin: 5px 0 0 0;
+}
+
+.history-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px; /* Thêm gap để 2 nút không dính vào nhau */
+}
+
+/* --- Styles Nút & Trạng thái --- */
+.status-badge {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.action-button {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+.action-button.disabled {
+    background-color: #0e6722ff;
+    cursor: not-allowed;
+}
+
+/* Nút Hủy (Đỏ) */
+.btn-cancel {
+    background-color: #dc3545;
+}
+.action-button.btn-cancel:hover {
+    background-color: #a91c2aff;
+}
+
+/* Nút Thanh toán (Xanh lá) */
+.btn-payment {
+    background-color: #23973eff;
+}
+.action-button.btn-payment:hover {
+    background-color: #0e6722ff;
+}
+
+/* Nút Đánh giá (Xanh dương) */
+.btn-review {
+    background-color: #00008b;
+}
+.action-button.btn-review:hover {
+    background-color: #03164fff;
+}
+
+
+/* Trạng thái (chỉ hiển thị, full-width) */
+.status-badge.full-width {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.status-pending {
+    background-color: #c9d4f7ff;
+    color: navy;
+}
+.status-paid {
+    background-color: #b2f6c2ff;
+    color: green;
+}
+.status-canceled {
+    background-color: #ffd0d0ff;
+    color: red;
+}
+.status-completed {
+    background-color: #b2f6c2ff;
+    color: Green;
+}
+.status-other {
+    background-color: #17a2b8;
+    color: white;
+}
+
+
+/* --- CSS CHO MODAL --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  width: 450px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
+  /* Thêm để fix bug trên một số trình duyệt */
+  max-width: 90%; 
+  box-sizing: border-box;
+}
+.modal-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #aaa;
+  border: none;
+  background: none;
+}
+.modal-qr-image {
+    width: 200px;
+    height: 200px;
+    margin: 20px auto;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    gap: 10px;
+}
+/* Nút Hủy trong Modal (đỏ) */
+.modal-actions .btn-cancel {
+    background-color: #bd0b0bff;
+}
+
+/* --- CSS CHO REVIEW MODAL (MỚI) --- */
+.review-star {
+    font-size: 2.5rem;
+    color: #ccc;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: color 0.2s;
+}
+.review-star-active {
+    font-size: 2.5rem;
+    color: #ffc107; /* Màu vàng */
+    cursor: pointer;
+    margin: 0 5px;
+    transition: color 0.2s;
+}
+.review-textarea {
+    width: 95%;
+    height: 80px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: Arial, sans-serif;
+    resize: vertical;
+}
+.modal-error {
+    color: red;
+    font-size: 0.9rem;
+}
+.modal-submit-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: navy;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.modal-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

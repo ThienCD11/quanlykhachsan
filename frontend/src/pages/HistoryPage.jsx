@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import HistoryCard from "../components/HistoryCard"; // Import HistoryCard
 import { AuthContext } from "../App"; // Import AuthContext
-
+ 
 const HistoryPage = () => {
   const [histories, setHistories] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Thêm state loading
@@ -40,11 +40,34 @@ const HistoryPage = () => {
       });
   }, [user]); // Phụ thuộc vào 'user'
 
-  // 3. useEffect GIỜ CHỈ GỌI HÀM fetchHistory
   useEffect(() => {
-    setIsLoading(true); // Chỉ set loading ở lần chạy đầu (hoặc khi user đổi)
-    fetchHistory();
-  }, [fetchHistory]); // Chạy lại khi hàm fetchHistory thay đổi (tức là khi user thay đổi)
+    if (user) {
+        // Set loading = true chỉ ở lần đầu tiên
+        // (Chúng ta dùng state isLoading riêng để tránh trang bị "nháy" mỗi 5s)
+        const firstLoad = histories.length === 0;
+        if(firstLoad) {
+            setIsLoading(true);
+        }
+
+        fetchHistory(); // Gọi ngay 1 lần khi component tải
+
+        // Đặt hẹn giờ (interval) để gọi lại hàm fetchHistory mỗi 5000ms (5 giây)
+        const intervalId = setInterval(() => {
+            console.log("Polling: Đang tải lại lịch sử...");
+            fetchHistory(); // Tải lại "âm thầm"
+        }, 5000);
+
+        // Dọn dẹp: Hủy hẹn giờ khi component bị gỡ (unmount)
+        return () => {
+            clearInterval(intervalId);
+        };
+    } else {
+        // Nếu không có user
+        setIsLoading(false);
+        setHistories([]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);  // Chạy lại khi hàm fetchHistory thay đổi (tức là khi user thay đổi)
 
   return (
     <>

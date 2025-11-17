@@ -148,7 +148,7 @@ export default function Footer() {
       {/* === PHẦN CHÂN CÙNG (MÀU ĐẬM HƠN) === */}
       <div style={styles.footerBottomWrapper}>
         <div style={styles.footerBottom}>
-          <p style={styles.footerBottomP}>Web quản lý khách sạn - Nhóm sinh viên 725105163_725105163_725105163</p>
+          <p style={styles.footerBottomP}>Web quản lý khách sạn - Nhóm sinh viên 725105163_725105167_725105175</p>
           <p style={styles.footerBottomP}>Chuyên đề TN dự án Công nghệ/Khoa học © 2025. GVHD - Vũ Thị Xuyến</p>
         </div>
       </div>
