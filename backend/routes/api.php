@@ -15,6 +15,7 @@ use App\Http\Controllers\StaBookingController;
 use App\Http\Controllers\StaRoomController;
 use App\Http\Controllers\StaFeedbackController;
 use App\Http\Controllers\StaCustomerController;
+use App\Http\Controllers\StaRevenueController;
 
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -95,7 +96,7 @@ Route::get('/statistic/suggestions', [StaFeedbackController::class, 'getSuggesti
 Route::get('/statistic/reviews', [StaFeedbackController::class, 'getReviews']);
 Route::get('/statistic/rooms', [StaRoomController::class, 'index']);
 Route::get('/statistic/customers', [StaCustomerController::class, 'index']);
-// Route::get('/statistic/revenue', [StaBookingController::class, 'index']);
+Route::get('/statistic/revenue', [StaRevenueController::class, 'index']);
 
 Route::post('/statistic/bookings/{id}/confirm', [StaBookingController::class, 'confirm']);
 Route::post('/statistic/bookings/{id}/cancel', [StaBookingController::class, 'cancel']);

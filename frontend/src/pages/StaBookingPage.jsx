@@ -59,11 +59,8 @@ const StaBookingPage = () => {
 
     // Cleanup khi rời trang
     return () => clearInterval(interval);
-  }, [fetchBookings]); // useEffect này sẽ chạy lại khi hàm fetchBookings thay đổi (tức là khi sortConfig đổi)
-
-  
+  }, [fetchBookings]); // useEffect này sẽ chạy lại khi hàm fetchBookings thay đổi (tức là khi sortConfig đổi)  
   // --- CÁC HÀM XỬ LÝ (ĐÃ SỬA LỖI COPY-PASTE) ---
-
   const handleConfirm = async (id) => {
     try {
       await axios.post(`http://localhost:8000/api/statistic/bookings/${id}/confirm`);
@@ -112,7 +109,6 @@ const StaBookingPage = () => {
     setBookings(sorted);
     setSortConfig({ key, direction });
   };
-
   const resetOrder = () => {
     setBookings([...originalData]);
     setSortConfig({ key: null, direction: "asc" });
@@ -123,6 +119,20 @@ const StaBookingPage = () => {
     return `${day}-${month}-${year}`;
   };
 
+  //Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
+
+  const totalItems = bookings.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = bookings.slice(startIndex, startIndex + itemsPerPage);
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   // (Const styles giữ nguyên)
   const styles = {
@@ -203,14 +213,14 @@ const StaBookingPage = () => {
           </thead>
 
           <tbody>
-            {bookings.length === 0 ? (
+            {currentData.length === 0 ? (
               <tr>
                 <td colSpan="7" style={{ ...tableCellStyle, textAlign: "center" }}>
                   Chưa có đơn đặt phòng nào.
                 </td>
               </tr>
             ) : (
-              bookings.map((b) => (
+              currentData.map((b) => (
                 <tr key={b.id}>
                   <td style={{ ...tableCellStyle, textAlign: "center" }}>{b.stt}</td>
                   <td style={tableCellStyle}>{b.invoice_id}</td>
@@ -266,6 +276,70 @@ const StaBookingPage = () => {
           </tbody>
         </table>
       )}
+      {/* Pagination Footer */}
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "15px 5px",
+        fontSize: "14px",
+      }}>
+        {/* LEFT: SHOWING ... */}
+        <span>
+          SHOWING {startIndex + 1} TO {Math.min(startIndex + itemsPerPage, totalItems)} OF {totalItems}
+        </span>
+
+        {/* RIGHT: PAGINATION */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          {/* Prev */}
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: currentPage === 1 ? "not-allowed" : "pointer",
+              fontSize: "18px"
+            }}
+          >
+            ❮
+          </button>
+
+          {/* Page numbers */}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => goToPage(p)}
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                border: "none",
+                cursor: "pointer",
+                background: p === currentPage ? "#00008b" : "#eaeaea",
+                color: p === currentPage ? "white" : "black",
+                fontWeight: "bold",
+              }}
+            >
+              {p}
+            </button>
+          ))}
+
+          {/* Next */}
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+              fontSize: "18px"
+            }}
+          >
+            ❯
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

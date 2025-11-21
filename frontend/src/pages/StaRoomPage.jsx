@@ -6,7 +6,7 @@ const StarRating = ({ rating }) => {
   let numericRating = parseFloat(rating);
 
   if (isNaN(numericRating)) {
-    return <span style={{ color: '#999', fontStyle: 'italic' }}>Chưa có</span>;
+    return <span style={{ color: '#999', fontStyle: 'italic', paddingLeft:'20px' }}>Chưa có</span>;
   }
   
   // Tính toán tỷ lệ phần trăm
@@ -65,6 +65,10 @@ const StaRoomPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 15;
+
   useEffect(() => {
     axios.get("http://127.0.0.1:8000/api/statistic/rooms")
       .then(res => {
@@ -79,6 +83,46 @@ const StaRoomPage = () => {
       });
   }, []); // Chỉ chạy 1 lần khi tải trang
 
+  const handleSort = (key) => {
+    let direction = "asc";
+
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+
+    setSortConfig({ key, direction });
+  };
+
+  const sortedRooms = [...rooms].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+
+    let x = a[sortConfig.key];
+    let y = b[sortConfig.key];
+
+    // số thì parseFloat
+    if (!isNaN(x) && !isNaN(y)) {
+      x = parseFloat(x);
+      y = parseFloat(y);
+    }
+
+    // chuỗi thì lowercase
+    if (typeof x === "string") x = x.toLowerCase();
+    if (typeof y === "string") y = y.toLowerCase();
+
+    if (x < y) return sortConfig.direction === "asc" ? -1 : 1;
+    if (x > y) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // PAGINATION  
+  const totalItems = rooms.length;
+  const totalPages = Math.ceil(rooms.length / rowsPerPage);
+
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedRooms = sortedRooms.slice(startIndex, startIndex + rowsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  
   // Định nghĩa style
   const tableStyle = {
     width: "100%",
@@ -110,23 +154,23 @@ const StaRoomPage = () => {
       <table style={{...tableStyle, borderRadius: '5px', overflow: 'hidden'}}>
         <thead>
           <tr>
-            <th style={{...tableHeaderStyle, width: '50px', textAlign: 'center'}}>STT</th>
-            <th style={tableHeaderStyle}>Tên phòng</th>
-            <th style={tableHeaderStyle}>Giá phòng</th>
-            <th style={{...tableHeaderStyle, textAlign: 'center'}}>Sức chứa</th>
-            <th style={{...tableHeaderStyle, textAlign: 'center'}}>Số lượt đặt</th>
-            <th style={{...tableHeaderStyle, textAlign: 'center'}}>Số lượt đánh giá</th>
-            <th style={tableHeaderStyle}>Rating (TB)</th>
-            <th style={{...tableHeaderStyle, textAlign: 'center'}}>Trạng thái</th>
+            <th style={{...tableHeaderStyle, width: '50px', textAlign: 'center'}} onClick={() => handleSort("stt")}>STT</th>
+            <th style={tableHeaderStyle} onClick={() => handleSort("name")}>Tên phòng</th>
+            <th style={tableHeaderStyle} onClick={() => handleSort("price")}>Giá phòng</th>
+            <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("capacity")}>Sức chứa</th>
+            <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("bookings_count")}>Lượt đặt</th>
+            <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("reviews_count")}>Lượt đánh giá</th>
+            <th style={{...tableHeaderStyle, width: '100px', textAlign: 'center'}} onClick={() => handleSort("rating_avg")}>Rating (TB)</th>
+            <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("status")}>Trạng thái</th>
           </tr>
         </thead>
         <tbody>
-          {rooms.length === 0 ? (
+          {paginatedRooms.length === 0 ? (
             <tr>
               <td colSpan="7" style={{...tableCellStyle, textAlign: 'center'}}>Chưa có phòng nào trong hệ thống.</td>
             </tr>
           ) : (
-            rooms.map((room) => (
+            paginatedRooms.map((room) => (
               <tr key={room.stt}>
                 <td style={{...tableCellStyle, textAlign: 'center'}}>{room.stt}</td>
                 <td style={{...tableCellStyle, marginLeft: '5px'}}>{room.name}</td>
@@ -156,6 +200,67 @@ const StaRoomPage = () => {
           )}
         </tbody>
       </table>
+      {/* Pagination */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "15px 5px",
+          fontSize: "14px",
+        }}>
+        {/* LEFT: SHOWING ... */}
+        <span>
+          SHOWING {startIndex + 1} TO {Math.min(startIndex + rowsPerPage, totalItems)} OF {totalItems}
+        </span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => paginate(currentPage - 1)}
+          style={{
+              background: "none",
+              border: "none",
+              cursor: currentPage === 1 ? "not-allowed" : "pointer",
+              fontSize: "18px"
+            }}
+          >
+            ❮
+          </button>
+
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => paginate(i + 1)}
+              style={{
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                border: "none",
+                cursor: "pointer",
+                background: i + 1 === currentPage ? "#00008b" : "#eaeaea",
+                color: i + 1 === currentPage ? "white" : "black",
+                fontWeight: "bold",
+              }}
+            >
+              {i + 1}
+            </button>
+          ))}
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => paginate(currentPage + 1)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+              fontSize: "18px"
+            }}
+          >
+            ❯
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

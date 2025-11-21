@@ -19,7 +19,8 @@ const StatCard = ({ title, value, unit, isRevenue = false }) => {
         borderRadius: "8px",
         boxShadow: "5px 5px 10px rgba(0,0,0,0.3)",
         textAlign: 'left',
-        transition: "transform 0.3s ease, box-shadow 0.3s ease", // Thêm transition
+        transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        borderLeft: '5px solid navy' // Thêm transition
     };
     
     // Các style con

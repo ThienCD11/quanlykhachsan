@@ -16,7 +16,8 @@ const StarRating = ({ rating }) => {
 
 // Component Bảng Góp Ý
 const SuggestionTable = ({ data }) => {
-    const tableHeaderStyle = { backgroundColor: "#003366", color: "white", padding: "15px", textAlign: "left",cursor: 'pointer', };
+    // Đã bỏ cursor: pointer
+    const tableHeaderStyle = { backgroundColor: "#003366", color: "white", padding: "15px", textAlign: "left" };
     const tableCellStyle = { padding: "15px", borderBottom: "1px solid #ddd", verticalAlign: "top" };
 
     return (
@@ -57,7 +58,8 @@ const SuggestionTable = ({ data }) => {
 
 // Component Bảng Đánh Giá
 const ReviewTable = ({ data }) => {
-    const tableHeaderStyle = { backgroundColor: "#003366", color: "white", padding: "15px", textAlign: "left",cursor: 'pointer' };
+    // Đã bỏ cursor: pointer
+    const tableHeaderStyle = { backgroundColor: "#003366", color: "white", padding: "15px", textAlign: "left" };
     const tableCellStyle = { padding: "15px", borderBottom: "1px solid #ddd", verticalAlign: "top" };
 
     return (
@@ -93,11 +95,14 @@ const ReviewTable = ({ data }) => {
 
 // Component Cha (Trang chính)
 const StaFeedbackPage = () => {
-  // 'suggestions' hoặc 'reviews'
   const [activeTab, setActiveTab] = useState('suggestions'); 
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // --- PHÂN TRANG ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   // Style cho các tab
   const tabStyle = {
@@ -120,7 +125,8 @@ const StaFeedbackPage = () => {
   useEffect(() => {
     setIsLoading(true);
     setError(null);
-    setData([]); // Xóa dữ liệu cũ
+    setData([]);
+    setCurrentPage(1); // Reset về trang 1 khi đổi tab
 
     const endpoint = activeTab === 'suggestions' 
       ? 'http://127.0.0.1:8000/api/statistic/suggestions'
@@ -137,7 +143,16 @@ const StaFeedbackPage = () => {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [activeTab]); // Chạy lại khi activeTab thay đổi
+  }, [activeTab]);
+
+  // --- TÍNH TOÁN PHÂN TRANG ---
+  const totalItems = data.length;
+  const totalPages = Math.ceil(totalItems / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  // Lấy dữ liệu cho trang hiện tại
+  const currentData = data.slice(startIndex, startIndex + rowsPerPage);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div>
@@ -159,7 +174,7 @@ const StaFeedbackPage = () => {
         </button>
       </div>
 
-      {/* 2. Hiển thị nội dung dựa trên trạng thái */}
+      {/* 2. Hiển thị nội dung */}
       {isLoading ? (
         <h1 style={{ textAlign: "center", color: "#555", marginTop: "100px" }}>Đang tải dữ liệu...</h1>
       ) : error ? (
@@ -167,10 +182,54 @@ const StaFeedbackPage = () => {
       ) : data.length === 0 ? (
         <h1 style={{ textAlign: "center", color: "#888", marginTop: "100px" }}>Không có dữ liệu.</h1>
       ) : (
-        // 3. Hiển thị bảng tương ứng
-        activeTab === 'suggestions' 
-          ? <SuggestionTable data={data} /> 
-          : <ReviewTable data={data} />
+        <>
+            {/* Hiển thị bảng với dữ liệu đã phân trang */}
+            {activeTab === 'suggestions' 
+              ? <SuggestionTable data={currentData} /> 
+              : <ReviewTable data={currentData} />
+            }
+
+            {/* 3. THANH PHÂN TRANG */}
+            {totalItems > rowsPerPage && (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 0", fontSize: "14px" }}>
+                    <span>
+                    SHOWING {startIndex + 1} TO {Math.min(startIndex + rowsPerPage, totalItems)} OF {totalItems}
+                    </span>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => paginate(currentPage - 1)}
+                            style={{ background: "none", border: "none", cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "18px" }}
+                        >
+                            ❮
+                        </button>
+
+                        {Array.from({ length: totalPages }, (_, i) => (
+                            <button
+                            key={i + 1}
+                            onClick={() => paginate(i + 1)}
+                            style={{
+                                width: "32px", height: "32px", borderRadius: "50%", border: "none", cursor: "pointer",
+                                background: i + 1 === currentPage ? "#00008b" : "#eaeaea",
+                                color: i + 1 === currentPage ? "white" : "black", fontWeight: "bold",
+                            }}
+                            >
+                            {i + 1}
+                            </button>
+                        ))}
+
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => paginate(currentPage + 1)}
+                            style={{ background: "none", border: "none", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "18px" }}
+                        >
+                            ❯
+                        </button>
+                    </div>
+                </div>
+            )}
+        </>
       )}
     </div>
   );
