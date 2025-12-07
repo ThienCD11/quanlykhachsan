@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Room;
 use App\Models\Booking;
 use Carbon\Carbon;
@@ -13,25 +12,19 @@ class StaRoomController extends Controller
     {
         $today = Carbon::today();
 
-        // Lấy danh sách phòng kèm thống kê
         $rooms = Room::select(['id', 'name', 'price', 'capacity'])
             ->withCount(['bookings', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->get();
 
-        // Phòng đang có khách
         $occupiedRoomIds = Booking::where('check_in', '<=', $today)
             ->where('check_out', '>', $today)
-            ->where('status', '!=', 'Đã hủy')
+            ->whereIn('status', ['Chờ thanh toán', 'Đã thanh toán', 'Đang sử dụng'])
             ->pluck('room_id')
             ->unique();
 
-        // Format dữ liệu trả về
         $formattedData = $rooms->map(function ($room, $index) use ($occupiedRoomIds) {
-
-            $status = $occupiedRoomIds->contains($room->id)
-                ? 'Đang có khách'
-                : 'Đang trống';
+            $status = $occupiedRoomIds->contains($room->id) ? 'Đang có khách' : 'Đang trống';
 
             return [
                 'stt' => $index + 1,
@@ -40,9 +33,7 @@ class StaRoomController extends Controller
                 'capacity' => $room->capacity,
                 'bookings_count' => $room->bookings_count,
                 'reviews_count' => $room->reviews_count,
-                'rating_avg' => $room->reviews_avg_rating
-                    ? round($room->reviews_avg_rating, 1)
-                    : 'Chưa có',
+                'rating_avg' => $room->reviews_avg_rating ? round($room->reviews_avg_rating, 1) : 'Chưa có',
                 'status' => $status,
             ];
         });

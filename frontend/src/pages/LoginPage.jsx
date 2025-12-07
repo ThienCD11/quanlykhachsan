@@ -32,7 +32,7 @@ const LoginPage = () => {
         console.log("Đăng nhập thành công! Response đầy đủ:", res.data);
         setUser(res.data.user);
         setToken(res.data.token);
-        // navigate(-1); // Quay lại trang trước
+        // navigate(-2); // Quay lại trang trước
         navigate("/"); 
       }
     } catch (err) {

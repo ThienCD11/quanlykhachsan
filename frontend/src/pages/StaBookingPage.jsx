@@ -10,6 +10,7 @@ const StaBookingPage = () => {
   // 2. THÊM STATE CHO LOADING VÀ ERROR
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   // 3. TÁCH LOGIC FETCH RA HÀM RIÊNG (ĐỂ SỬ DỤNG LẠI)
   // useCallback đảm bảo hàm này chỉ được tạo lại khi sortConfig thay đổi
@@ -65,8 +66,8 @@ const StaBookingPage = () => {
     try {
       await axios.post(`http://localhost:8000/api/statistic/bookings/${id}/confirm`);
       // Cập nhật state (Dùng functional update để tránh lỗi stale state)
-      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "Đã xác nhận" } : b));
-      setOriginalData(prev => prev.map(b => b.id === id ? { ...b, status: "Đã xác nhận" } : b));
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "Chờ thanh toán" } : b));
+      setOriginalData(prev => prev.map(b => b.id === id ? { ...b, status: "Chờ thanh toán" } : b));
     } catch (err) {
       console.error("Lỗi khi xác nhận:", err);
       alert("Xác nhận thất bại!");
@@ -84,6 +85,41 @@ const StaBookingPage = () => {
         console.error("Lỗi khi hủy:", err);
         alert("Hủy đơn thất bại!");
       }
+    }
+  };
+
+  const handleUseRoom = async (id) => {
+    try {
+      await axios.post(`http://localhost:8000/api/statistic/bookings/${id}/use-room`);
+      // Cập nhật state (Dùng functional update để tránh lỗi stale state)
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "Đang sử dụng" } : b));
+      setOriginalData(prev => prev.map(b => b.id === id ? { ...b, status: "Đang sử dụng" } : b));
+    } catch (err) {
+      console.error("Lỗi khi xác nhận:", err);
+      alert("Xác nhận thất bại!");
+    }
+  };
+
+  const handleCompleteRoom = async (id) => {
+    try {
+      await axios.post(`http://localhost:8000/api/statistic/bookings/${id}/complete-room`);
+      // Cập nhật state (Dùng functional update để tránh lỗi stale state)
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "Hoàn thành" } : b));
+      setOriginalData(prev => prev.map(b => b.id === id ? { ...b, status: "Hoàn thành" } : b));
+    } catch (err) {
+      console.error("Lỗi khi xác nhận:", err);
+      alert("Xác nhận thất bại!");
+    }
+  };
+
+  const handleRefund = async (id) => {
+    try {
+      await axios.post(`http://localhost:8000/api/statistic/bookings/${id}/refund`);
+      setBookings(prev => prev.map(b => b.id === id ? { ...b, status: "Đã hoàn tiền" } : b));
+      setOriginalData(prev => prev.map(b => b.id === id ? { ...b, status: "Đã hoàn tiền" } : b));
+    } catch (err) {
+      console.error("Lỗi khi xác nhận:", err);
+      alert("Hoàn tiền thất bại!");
     }
   };
 
@@ -136,19 +172,52 @@ const StaBookingPage = () => {
 
   // (Const styles giữ nguyên)
   const styles = {
-    button: {
-      border: "none", padding: "8px 12px", borderRadius: "4px", cursor: "pointer",
-      fontWeight: "bold", margin: "0 2px", fontSize: "12px",
+    dropdownBtn: {
+      display: "block",
+      width: "100%",
+      padding: "10px",
+      paddingLeft: "6px",
+      border: "none",
+      textAlign: "center",
+      cursor: "pointer",
+      fontSize: "13px",
+      borderBottom: "1px solid #eee",
+      transition: "all 0.2s",
+      fontWeight: "500",
     },
-    confirmButton: { backgroundColor: "#00008b", color: "white" },
-    confirmButton2: { backgroundColor: "#057e0dff", color: "white" },
-    cancelButton: { backgroundColor: "#ce1726ff", color: "white", marginLeft: "5px" },
-    statusText: { fontWeight: "bold", padding: "8px 12px", borderRadius: "4px", fontSize: "12px" },
-    pendingStatus: { color: "#0b055eff", backgroundColor: "#c2d4f9ff" },
-    completedStatus: { color: "#0c4f1cff", backgroundColor: "#b5f0c3ff" },
-    canceledStatus: { color: "#960a0aff", backgroundColor: "#efc1c1ff" },
-    sortIcon: { marginLeft: "0px", position: "relative", top: "2px", fontSize: "15px" },
-    // <FaSort style={styles.sortIcon} />
+    // Định nghĩa màu cho từng loại nút trong dropdown
+    btnConfirm: { color: "#ffffffff",fontWeight: "bold", background: "#00008b" }, // Xanh lá
+    btnCancel: { color: "#ffffffff",fontWeight: "bold", background: "#b20d0dff" },  // Đỏ
+    btnUse: { color: "#ffffffff",fontWeight: "bold", background: "#bcad00ff" },     // Xanh dương
+    btnComplete: { color: "#ffffffff",fontWeight: "bold", background: "#036e1cff" }, // Cam
+    btnRefund: { color: "#ffffffff",fontWeight: "bold", background: "#782ea3ff" },   // Tím
+    statusBackgrounds: {
+      "Chờ xác nhận": "#c5c5ffff", // Navy mặc định
+      "Chờ thanh toán": "#ffe298ff", // Cam (cảnh báo)
+      "Đã thanh toán": "#ebf3abff", // Xanh lá (tích cực)
+      "Đang sử dụng": "#fdcee4ff", // Xanh dương (đang diễn ra)
+      "Chờ hoàn tiền": "#e4c0ffff", // Tím
+    },
+    statusColors: {
+      "Chờ xác nhận": "#00008b", // Navy mặc định
+      "Chờ thanh toán": "#b16d00ff", // Cam (cảnh báo)
+      "Đã thanh toán": "#bcad00ff", // Xanh lá (tích cực)
+      "Đang sử dụng": "#b9007bff", // Xanh dương (đang diễn ra)
+      "Chờ hoàn tiền": "#782ea3ff", // Tím
+    },
+    statusText: { 
+        fontWeight: "bold", 
+        padding: "6px", 
+        borderRadius: "6px", 
+        fontSize: "13px",
+        display: "inline-block" // Đảm bảo hiển thị gọn gàng
+    },
+    // Màu Xanh lá cho Hoàn thành
+    completedStatus: { color: "#036e1cff", backgroundColor: "#a4e8b4ff" }, 
+    // Màu Đỏ cho Đã hủy
+    canceledStatus: { color: "#b40606ff", backgroundColor: "#ffc1c1ff" },   
+    // Màu Tím cho Đã hoàn tiền (Mới thêm)
+    refundedStatus: { color: "#5c5c5cff", backgroundColor: "#cececeff" },
   };
   const tableStyle = {
     width: "100%",
@@ -172,10 +241,11 @@ const StaBookingPage = () => {
     borderBottom: "1px solid #e5e5e5",
     backgroundColor: "white",
   };
+  
 
   return (
     <div>
-      <h2>Danh Sách Yêu Cầu Đặt Phòng</h2>
+      <h2>Danh Sách Đơn Đặt Phòng</h2>
 
       {/* 5. THÊM LOGIC LOADING/ERROR/EMPTY VÀO ĐÂY */}
       {isLoading ? (
@@ -208,7 +278,9 @@ const StaBookingPage = () => {
               <th style={tableHeaderStyle} onClick={() => handleSort("total")}>
                 Thanh toán 
               </th>
-              <th style={tableHeaderStyle}>Quản lý</th>
+              <th style={{...tableHeaderStyle, paddingLeft: '25px'}} onClick={() => handleSort("status")}>
+                Quản lý
+              </th>
             </tr>
           </thead>
 
@@ -230,44 +302,133 @@ const StaBookingPage = () => {
                   <td style={tableCellStyle}>{formatDate(b.checkout)}</td>
                   <td style={tableCellStyle}>{b.booking_at}</td>
                   <td style={tableCellStyle}>{Number(b.total || 0).toLocaleString("vi-VN")}</td>
-                  <td>
-                    {(b.status === "Đã đặt phòng" || b.status === null) ? (
-                      <>
-                        <button 
-                          onClick={() => handleConfirm(b.id)} 
-                          style={{ ...styles.button, ...styles.confirmButton }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#10034dff'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = styles.confirmButton.backgroundColor}
-                        >
-                            Xác nhận
-                        </button>
-                        <button 
-                          onClick={() => handleCancel(b.id)} 
-                          style={{ ...styles.button, ...styles.cancelButton }}
-                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#850808ff'}
-                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ce1726ff'}
-                        >
-                            Hủy
-                        </button>
-                      </>
-                    ) : b.status === "Đã xác nhận" ? (
-                      <span style={{ ...styles.statusText, ...styles.pendingStatus }}>
-                        Chờ thanh toán
-                      </span>
-                    ) : b.status === "Đã thanh toán" ? (
-                      <span style={{ ...styles.statusText, ...styles.completedStatus }}>
-                        Đã thanh toán
-                      </span>
-                    ) : b.status === "Đã hoàn thành" ? (
-                      <span style={{ ...styles.statusText, ...styles.completedStatus }}>
-                        Đã hoàn thành
-                      </span>
-                    ) : b.status === "Đã hủy" ? (
-                      <span style={{ ...styles.statusText, ...styles.canceledStatus }}>
-                        Đã hủy
-                      </span>
-                    ) : (
-                      <span style={{ ...styles.statusText }}>{b.status}</span>
+                  <td style={tableCellStyle}>
+                    {["Hoàn thành", "Đã hủy", "Đã hoàn tiền"].includes(b.status) ? (
+                    <span
+                      style={{
+                        ...styles.statusText,
+                        ...(b.status === "Hoàn thành" ? styles.completedStatus : 
+                          b.status === "Đã hủy" ? styles.canceledStatus : 
+                          styles.refundedStatus) // Nếu không là 2 cái trên thì là Đã hoàn tiền
+                      }}
+                    >
+                      {b.status === "Hoàn thành" ? "Hoàn thành" : b.status}
+                    </span>
+                  ) : (
+                      <div style={{ position: "relative", display: "inline-block" }}>
+                        {(() => {
+                          const currentStatusBG = styles.statusBackgrounds[b.status] || styles.statusBackgrounds["Chờ xác nhận"];
+                          const currentStatusColor = styles.statusColors[b.status] || styles.statusColors["Chờ xác nhận"];
+                          return (
+                            <div
+                              onClick={() => setOpenMenuId(openMenuId === b.id ? null : b.id)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                background: currentStatusBG, // Áp dụng màu động ở đây
+                                color: currentStatusColor,
+                                borderRadius: "6px",
+                                padding: "6px",
+                                cursor: "pointer",
+                                border: "1px solid white",
+                                fontSize: "13px",
+                                fontWeight: "bold",
+                                transition: "all 0.2s ease",
+                              }}
+                              onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.8)")} // Làm sáng màu khi hover
+                              onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
+                            >
+                              <span>{b.status || "Chờ xác nhận"}</span>
+                            </div>
+                          );
+                        })()}
+
+                        {openMenuId === b.id && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              zIndex: 10,
+                              right: 0,
+                              ...(startIndex + currentData.indexOf(b) > currentData.length - 3 
+                                  ? { bottom: "100%", marginBottom: "2px" } 
+                                  : { top: "100%", marginTop: "2px" }
+                              ),
+                              color: "white",
+                              border: "1px solid #ddd",
+                              borderRadius: "6px",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                              width: "100px",
+                              overflow: "hidden"
+                            }}
+                          >
+                            {/* th1: Chờ xác nhận */}
+                            {(b.status === "Chờ xác nhận" || !b.status) && (
+                              <>
+                                <button 
+                                  style={{...styles.dropdownBtn, ...styles.btnConfirm}} 
+                                  onClick={() => { handleConfirm(b.id); setOpenMenuId(null); }}
+                                  onMouseEnter={(e) => e.target.style.background = "#000065ff"}
+                                  onMouseLeave={(e) => e.target.style.background = "#00008b"}
+                                >Xác nhận</button>
+                                <button 
+                                  style={{...styles.dropdownBtn, ...styles.btnCancel}} 
+                                  onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}
+                                  onMouseEnter={(e) => e.target.style.background = "#850404ff"}
+                                  onMouseLeave={(e) => e.target.style.background = "#b20d0dff"}
+                                >Hủy đơn</button>
+                              </>
+                            )}
+
+                            {/* th2: Chờ thanh toán */}
+                            {b.status === "Chờ thanh toán" && (
+                              <button 
+                                style={{...styles.dropdownBtn, ...styles.btnCancel}} 
+                                onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}
+                                onMouseEnter={(e) => e.target.style.background = "#850404ff"}
+                                onMouseLeave={(e) => e.target.style.background = "#b20d0dff"}
+                              >Hủy đơn</button>
+                            )}
+
+                            {/* th3: Đã thanh toán */}
+                            {b.status === "Đã thanh toán" && (
+                              <>
+                                <button 
+                                  style={{...styles.dropdownBtn, ...styles.btnUse}} 
+                                  onClick={() => { handleUseRoom(b.id); setOpenMenuId(null); }}
+                                  onMouseEnter={(e) => e.target.style.background = "#a09300ff"}
+                                  onMouseLeave={(e) => e.target.style.background = "#bcad00ff"}
+                                >Sử dụng</button>
+                                <button 
+                                  style={{...styles.dropdownBtn, ...styles.btnCancel}} 
+                                  onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}
+                                  onMouseEnter={(e) => e.target.style.background = "#850404ff"}
+                                  onMouseLeave={(e) => e.target.style.background = "#b20d0dff"}
+                                >Hủy đơn</button>
+                              </>
+                            )}
+
+                            {/* th4: Đang sử dụng */}
+                            {b.status === "Đang sử dụng" && (
+                              <button 
+                                style={{...styles.dropdownBtn, ...styles.btnComplete}} 
+                                onClick={() => { handleCompleteRoom(b.id); setOpenMenuId(null); }}
+                                onMouseEnter={(e) => e.target.style.background = "#015615ff"}
+                                onMouseLeave={(e) => e.target.style.background = "#036e1cff"}
+                              >Hoàn thành</button>
+                            )}
+
+                            {/* th7: Chờ hoàn tiền */}
+                            {b.status === "Chờ hoàn tiền" && (
+                              <button 
+                                style={{...styles.dropdownBtn, ...styles.btnRefund}} 
+                                onClick={() => { handleRefund(b.id); setOpenMenuId(null); }}
+                                onMouseEnter={(e) => e.target.style.background = "#4f047bff"}
+                                onMouseLeave={(e) => e.target.style.background = "#782ea3ff"}
+                              >Hoàn tiền</button>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </td>
                 </tr>

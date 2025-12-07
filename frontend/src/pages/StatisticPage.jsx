@@ -108,19 +108,18 @@ const StatisticDashboard = () => {
     // (3) SỬ DỤNG COMPONENT StatCard 9 LẦN (Sạch sẽ hơn)
     return (
         <div style={gridStyle}>
-            {/* Hàng 1 */}
             <StatCard title="Phòng Đang Trống" value={stats.availableRooms} unit="phòng" />
             <StatCard title="Phòng Đang Có Khách" value={stats.occupiedRooms} unit="phòng" />
             <StatCard title="Tổng Số Khách Hàng" value={stats.totalCustomers} unit="người" />
             
-            {/* Hàng 2 */}
             <StatCard title="Yêu Cầu Đặt Phòng Mới" value={stats.pendingBookings} unit="đơn" />
             <StatCard title="Đơn Đã Hủy" value={stats.canceledBookings} unit="đơn" />
+            <StatCard title="Đơn Đã Hoàn Tiền" value={stats.refundBookings} unit="đơn" />
+
             <StatCard title="Đơn Đã Thanh Toán" value={stats.paidBookings} unit="đơn" />
-            
-            {/* Hàng 3 */}
             <StatCard title="Tổng Góp Ý" value={stats.totalSuggestions} unit="góp ý" />
             <StatCard title="Tổng Đánh Giá" value={stats.totalReviews} unit="đánh giá" />
+
             <StatCard title="Tổng Doanh Thu" value={formattedRevenue} unit="VNĐ" isRevenue={true} />
         </div>
     );
@@ -136,14 +135,14 @@ const StatisticPage = () => {
 
     // --- Styles ---
     const sidebarStyle = {
-        width: "200px",
+        width: "220px",
         backgroundColor: "navy",
-        padding: "20px 10px",
+        padding: "20px 5px",
         color: "white",
         minHeight: "calc(100vh - 100px)",
     };
     const navLinkStyle = {
-        display: "block", color: "white", padding: "10px 15px",
+        display: "block", color: "white", padding: "10px",
         textDecoration: "none", borderRadius: "4px", marginBottom: "5px",
     };
     const activeStyle = {
@@ -178,22 +177,25 @@ const StatisticPage = () => {
                 <div style={sidebarStyle}>
                     <h3 style={{ paddingLeft: '15px', marginBottom: '20px', borderBottom: '1px solid #ffffff50', paddingBottom: '10px' }}>ADMIN</h3>
                     <NavLink to="/statistic" end style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Thống Kê Tổng Quan
+                        Thống kê tổng quan
                     </NavLink>
                     <NavLink to="/statistic/bookings" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Yêu Cầu Đặt Phòng
+                        Quản lý đơn đặt phòng
                     </NavLink>
                     <NavLink to="/statistic/feedbacks" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Góp Ý & Đánh Giá
+                        Quản lý góp ý & đánh giá
                     </NavLink>
                     <NavLink to="/statistic/rooms" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Danh Sách Phòng
+                        Quản lý danh sách phòng
+                    </NavLink>
+                    <NavLink to="/statistic/facilities" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
+                        Quản lý tiện nghi
                     </NavLink>
                     <NavLink to="/statistic/customers" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Khách Hàng
+                        Quản lý khách hàng
                     </NavLink>
                     <NavLink to="/statistic/revenue" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Doanh Thu
+                        Thống kê Doanh Thu
                     </NavLink>
                 </div>
 

@@ -14,13 +14,18 @@ const Header = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-   setUser(null); // Xóa state user
-  //  setToken(null); // Xóa state token
-   sessionStorage.removeItem('user');
-   sessionStorage.removeItem('authToken');
-   setAccountMenuOpen(false); // Đóng menu
-    navigate('/'); // Điều hướng về trang chủ
+   const isConfirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất không?");
+    if (isConfirmed) {
+      setUser(null); // Xóa state user
+      //  setToken(null); // Xóa state token
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('authToken');
+      setAccountMenuOpen(false); // Đóng menu
+        
+      navigate('/login'); // Điều hướng về trang chủ
+    }
  };
+
 
   const navLinkStyle = ({ isActive }) => ({
     textDecoration: "none",

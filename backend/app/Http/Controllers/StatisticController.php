@@ -2,61 +2,61 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Room;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Suggestion;
 use App\Models\Review;
-use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class StatisticController extends Controller
 {
     /**
-     * Lấy tất cả số liệu thống kê cho trang tổng quan.
+     * Lấy tất cả số liệu thống kê cho Dashboard tổng quan.
      */
     public function index()
     {
-        // --- Tính toán Doanh thu & Đơn đã thanh toán ---
-        $paidBookings = Booking::whereIn('status', ['Đã thanh toán', 'Đã hoàn thành'])->get();
+        $today = Carbon::today();
+
+        // 1. Tính toán doanh thu (th3, th4, th5 - Các trạng thái đã thu tiền)
+        // Lưu ý: Không tính th7, th8 (Chờ hoàn/Đã hoàn) vào doanh thu thực
+        $paidBookings = Booking::whereIn('status', ['Đã thanh toán', 'Đang sử dụng', 'Hoàn thành'])->get();
         $totalRevenue = 0;
+
         foreach ($paidBookings as $booking) {
             $checkIn = Carbon::parse($booking->check_in);
             $checkOut = Carbon::parse($booking->check_out);
-            $days = $checkOut->diffInDays($checkIn);
-            if ($days <= 0) $days = 1; // Ít nhất là 1 ngày
-            $totalRevenue += ($booking->price * $days); // $booking->price là giá 1 đêm
+            $days = $checkOut->diffInDays($checkIn) ?: 1;
+            
+            $totalRevenue += ($booking->price * $days);
         }
 
-        // --- Tính toán Phòng (Logic phức tạp) ---
-        $today = Carbon::today();
-        
-        // Lấy tổng số phòng
-        $totalRooms = Room::count();
+        // 2. Tính toán trạng thái phòng (Logic real-time)
+        $totalRoomsCount = Room::count();
 
-        // Lấy ID các phòng ĐANG CÓ NGƯỜI Ở (check_in <= today < check_out)
-        // và status không phải là 'Đã hủy'
+        // Phòng có khách: Phải thuộc các đơn đang trong quá trình sử dụng (th2, th3, th4)
+        // th1 (Chờ xác nhận) tính là phòng trống. th5 (Xong) tính là phòng trống.
         $occupiedRoomIds = Booking::where('check_in', '<=', $today)
-                                  ->where('check_out', '>', $today)
-                                  ->where('status', '!=', 'Đã hủy')
-                                  ->distinct('room_id') // Chỉ đếm mỗi phòng 1 lần
-                                  ->pluck('room_id'); // Lấy danh sách ID
+            ->where('check_out', '>', $today)
+            ->whereIn('status', ['Chờ thanh toán', 'Đã thanh toán', 'Đang sử dụng'])
+            ->distinct()
+            ->pluck('room_id');
 
         $occupiedRoomsCount = $occupiedRoomIds->count();
-        $availableRoomsCount = $totalRooms - $occupiedRoomsCount;
+        $availableRoomsCount = $totalRoomsCount - $occupiedRoomsCount;
 
-        // --- Gộp kết quả ---
+        // 3. Tổng hợp kết quả trả về Frontend
         $stats = [
-            'availableRooms' => $availableRoomsCount,
-            'occupiedRooms' => $occupiedRoomsCount,
-            'totalCustomers' => User::where('role', 'customer')->count(),
+            'availableRooms'   => $availableRoomsCount,
+            'occupiedRooms'    => $occupiedRoomsCount,
+            'totalCustomers'   => User::where('role', 'customer')->count(),
             'totalSuggestions' => Suggestion::count(),
-            'totalReviews' => Review::count(),
-            'pendingBookings' => Booking::where('status', 'Đã đặt phòng')->orWhereNull('status')->count(),
+            'totalReviews'     => Review::count(),
+            'pendingBookings'  => Booking::whereIn('status', ['Chờ xác nhận', null])->count(),
             'canceledBookings' => Booking::where('status', 'Đã hủy')->count(),
-            'paidBookings' => $paidBookings->count(), // Số đơn đã thanh toán
-            'totalRevenue' => $totalRevenue, // Tổng doanh thu
+            'refundBookings'   => Booking::where('status', 'Đã hoàn tiền')->count(),
+            'paidBookings'     => $paidBookings->count(), 
+            'totalRevenue'     => $totalRevenue,
         ];
 
         return response()->json($stats, 200, [], JSON_UNESCAPED_UNICODE);

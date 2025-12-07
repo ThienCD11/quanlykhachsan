@@ -100,7 +100,11 @@ Route::get('/statistic/revenue', [StaRevenueController::class, 'index']);
 
 Route::post('/statistic/bookings/{id}/confirm', [StaBookingController::class, 'confirm']);
 Route::post('/statistic/bookings/{id}/cancel', [StaBookingController::class, 'cancel']);
-Route::post('/statistic/bookings/{id}/confirm-payment', [StaBookingController::class, 'confirmPayment']);
+Route::post('/statistic/bookings/{id}/use-room', [StaBookingController::class, 'useRoom']);
+Route::post('/statistic/bookings/{id}/complete-room', [StaBookingController::class, 'completeRoom']);
+Route::post('/statistic/bookings/{id}/refund', [StaBookingController::class, 'refund']);
+
+
 Route::post('/bookings/{id}/customer-cancel', [BookingActionController::class, 'customerCancel']);
 Route::post('/bookings/{id}/pay', [BookingActionController::class, 'processPayment']);
 Route::post('/bookings/{id}/review', [BookingActionController::class, 'submitReview']);

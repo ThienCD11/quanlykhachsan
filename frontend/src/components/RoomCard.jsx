@@ -21,7 +21,7 @@ const RoomCard = ({ room }) => {
           <img src={logo} alt="logo" className="room-logo" />
           {/* SỬA DÒNG NÀY: Truyền ID của phòng vào URL */}
           <Link to={`/booking/${room.id}`} className="book-now-btn">
-            Đặt phòng ngay
+            Xem chi tiết
           </Link>
         </div>
       </div>

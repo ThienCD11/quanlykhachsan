@@ -95,8 +95,8 @@ const StaRevenuePage = () => {
   const cardGridStyle = {
     flex: 2, // Chiếm 2 phần
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    gap: '20px',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+    gap: '30px',
   };
   
   const cardStyle = {
@@ -109,7 +109,8 @@ const StaRevenuePage = () => {
     justifyContent: 'center',
     alignItems: 'center',
     borderLeft: '5px solid navy', // Điểm nhấn
-    minHeight: '80px'
+    minHeight: '80px',
+    minWidth: '200px',
   };
 
   const cardTitle = { fontSize: '1.1rem', color: '#0b0411ff', marginBottom: '5px', fontWeight: 'bold', textAlign: 'center' };
@@ -178,6 +179,14 @@ const StaRevenuePage = () => {
             <div style={cardStyle}>
               <span style={cardTitle}>Tổng đơn thanh toán</span>
               <p style={cardValue}>{data.totalOrders} đơn</p>
+            </div>
+            <div style={cardStyle}>
+              <span style={cardTitle}>Tổng đơn đã hoàn</span>
+              <p style={cardValue}>{data.totalRefundedOrders} đơn</p>
+            </div>
+            <div style={cardStyle}>
+              <span style={cardTitle}>Tổng tiền đã hoàn</span>
+              <p style={cardValue}>{formatCurrency(data.totalRefundedAmount)}</p>
             </div>
         </div>
       </div>
@@ -280,9 +289,8 @@ const StaRevenuePage = () => {
               <tr>
                 <th style={{ ...tableHeaderStyle, textAlign: 'center' }} onClick={() => handleSort("stt")}>STT</th>
                 <th style={{...tableHeaderStyle, paddingLeft: '15px'}} onClick={() => handleSort("invoice_id")}>Mã đơn</th>
-                <th style={tableHeaderStyle} onClick={() => handleSort("customer_name")}>Tên khách</th>
+                <th style={tableHeaderStyle} onClick={() => handleSort("customer_name")}>Khách hàng</th>
                 <th style={tableHeaderStyle} onClick={() => handleSort("room_name")}>Tên Phòng</th>
-                <th style={{ ...tableHeaderStyle, textAlign: 'center' }} onClick={() => handleSort("capacity")}>Sức chứa</th>
                 <th style={{ ...tableHeaderStyle, textAlign: 'center' }}>Thời lượng</th>
                 <th style={{...tableHeaderStyle, paddingLeft: '20px'}} onClick={() => handleSort("booked_at")}>Ngày đặt</th>
                 <th style={{...tableHeaderStyle, paddingLeft: '20px'}} onClick={() => handleSort("paid_at")}>Ngày thanh toán</th>
@@ -299,7 +307,6 @@ const StaRevenuePage = () => {
                     <td style={{ ...tableCellStyle, }}>{item.invoice_id}</td>
                     <td style={tableCellStyle}>{item.customer_name}</td>
                     <td style={tableCellStyle}>{item.room_name}</td>
-                    <td style={{ ...tableCellStyle, textAlign: 'center' }}>{item.capacity}</td>
                     <td style={{ ...tableCellStyle, textAlign: 'center' }}>{item.duration}</td>
                     <td style={tableCellStyle}>{item.booked_at}</td>
                     <td style={tableCellStyle}>{item.paid_at}</td>
