@@ -1,47 +1,55 @@
 import React, { useState, useContext } from "react";
 import axios from "axios";
 import Header from "../components/Header.jsx";
-import Footer from "../components/Footer.jsx"; // Giả sử file tên là Footer.jsx
+import Footer from "../components/Footer.jsx";
 import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../App.js"; // Giả sử App.js ở thư mục src/
+import { AuthContext } from "../App.js";
 
 const LoginPage = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { setUser, setToken  } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext); // CHỈ CẦN setUser
 
   const handleLogin = async (e) => {
-    // --- DEBUG BẮT ĐẦU ---
-    console.log("Hàm handleLogin ĐÃ ĐƯỢC GỌI!"); // DÒNG DEBUG 1
     e.preventDefault();
-    console.log("Hành vi mặc định của Form ĐÃ BỊ CHẶN!"); // DÒNG DEBUG 2
-    // --- DEBUG KẾT THÚC ---
+    console.log("Đang đăng nhập...");
 
-    setError(""); // Xóa lỗi cũ
+    setError("");
 
     try {
-      // Đảm bảo URL là chính xác
       const res = await axios.post("http://localhost:8000/api/login", {
         phone,
         password,
       });
 
+      console.log("Response đầy đủ:", res.data);
+
       if (res.data.success) {
-        console.log("Đăng nhập thành công! Response đầy đủ:", res.data);
+        console.log("Đăng nhập thành công!");
+        console.log("Token nhận được:", res.data.token);
+        
+        // *** QUAN TRỌNG: LƯU TOKEN VÀO LOCALSTORAGE ***
+        localStorage.setItem("token", res.data.token);
+        
+        // Kiểm tra token đã lưu chưa
+        const savedToken = localStorage.getItem("token");
+        console.log("Token đã lưu vào localStorage:", savedToken);
+        
+        // Lưu user vào Context
         setUser(res.data.user);
-        setToken(res.data.token);
-        // navigate(-2); // Quay lại trang trước
-        navigate("/"); 
+        console.log("User đã lưu vào Context:", res.data.user);
+        
+        // Chuyển hướng
+        navigate("/");
       }
     } catch (err) {
-      console.error("Lỗi Axios:", err); // Log lỗi chi tiết
+      console.error("Lỗi Axios:", err);
 
       if (err.code === "ERR_NETWORK") {
-        setError("Không thể kết nối đến máy chủ API. Vui lòng đảm bảo backend đang chạy trên http://127.0.0.1:8000.");
+        setError("Không thể kết nối đến máy chủ API. Vui lòng đảm bảo backend đang chạy.");
       } else if (err.response) {
-        // Có phản hồi lỗi từ server (401, 404, 500...)
         setError(err.response.data.message || "Lỗi từ server.");
       } else {
         setError("Lỗi đăng nhập. Vui lòng thử lại.");
@@ -74,7 +82,6 @@ const LoginPage = () => {
             Đăng Nhập
           </h2>
 
-          {/* Đảm bảo form gọi đúng hàm */}
           <form onSubmit={handleLogin}>
             <label>Số điện thoại</label>
             <input
@@ -123,7 +130,7 @@ const LoginPage = () => {
             )}
 
             <button
-              type="submit" // Đảm bảo đây là type "submit"
+              type="submit"
               style={{
                 width: "100%",
                 padding: "12px",
@@ -155,4 +162,3 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-

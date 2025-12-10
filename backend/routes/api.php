@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RoomController;
-use App\Http\Controllers\FacilityController;
+use App\Http\Controllers\StaFacilityController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
@@ -16,80 +16,44 @@ use App\Http\Controllers\StaRoomController;
 use App\Http\Controllers\StaFeedbackController;
 use App\Http\Controllers\StaCustomerController;
 use App\Http\Controllers\StaRevenueController;
+use App\Http\Controllers\UserController;
 
+// ===== PUBLIC ROUTES =====
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-// ===== BẮT ĐẦU PHẦN THÊM MỚI (SLEDGEHAMMER FIX) =====
-// Route này sẽ bắt "preflight request" (OPTIONS) mà trình duyệt gửi
-// trước khi nó gửi POST, và trả về header "cho phép".
-Route::options('/login', function (Request $request) {
-    return response()->json(null, 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:3000', // Cho phép origin
-        'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS', // Cho phép các phương thức
-        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization' // Cho phép các header
-    ]);
-});
-
-Route::options('/register', function (Request $request) {
-    return response()->json(null, 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:3000',
-        'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-    ]);
-});
-
-Route::options('/contact', function (Request $request) {
-    return response()->json(null, 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:3000',
-        'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-    ]);
-});
-
-Route::options('/bookings', function (Request $request) {
-    return response()->json(null, 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:3000',
-        'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-    ]);
-});
-
-Route::options('/rooms', function (Request $request) {
-    return response()->json(null, 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:3000',
-        'Access-Control-Allow-Methods' => 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-    ]);
-});
-
-Route::options('/bookings/{id}/review', function (Request $request) {
-    return response()->json(null, 200, [
-        'Access-Control-Allow-Origin' => 'http://localhost:3000',
-        'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
-        'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-    ]);
-});
-
-// Route::options('/bookings/{id}/review', function (Request $request) {
-//     return response()->json(null, 200, [
-//         'Access-Control-Allow-Origin' => 'http://localhost:3000',
-//         'Access-Control-Allow-Methods' => 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
-//         'Access-Control-Allow-Headers' => 'Content-Type, X-Requested-With, Authorization'
-//     ]);
-// });
-
-Route::get('/rooms', [RoomController::class, 'index']);
-Route::get('/rooms/{room}', [RoomController::class, 'show']);
-Route::get('/facilities', [FacilityController::class, 'index']);
-Route::post('/contact', [ContactController::class, 'store']);
-Route::post('/bookings', [BookingController::class, 'store']);
+// Auth Routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);
-Route::get('/histories', [HistoryController::class, 'index']);
 
+// Room Routes (Public)
+Route::get('/rooms', [RoomController::class, 'index']);
+Route::get('/rooms/{room}', [RoomController::class, 'show']);
+
+// ===== CRUD ROUTES CHO QUẢN LÝ PHÒNG (ADMIN) =====
+Route::prefix('rooms')->group(function () {
+    Route::post('/', [StaRoomController::class, 'store']);
+    Route::put('/{id}', [StaRoomController::class, 'update']);
+    Route::post('/{id}', [StaRoomController::class, 'update']);
+    Route::delete('/{id}', [StaRoomController::class, 'destroy']);
+});
+
+// Facility Routes (Public)
+Route::get('/facilities', [StaFacilityController::class, 'index']);
+
+// ===== CRUD ROUTES CHO QUẢN LÝ TIỆN NGHI (ADMIN) =====
+Route::prefix('facilities')->group(function () {
+    Route::post('/', [StaFacilityController::class, 'store']);
+    Route::put('/{id}', [StaFacilityController::class, 'update']);
+    Route::post('/{id}', [StaFacilityController::class, 'update']);
+    Route::delete('/{id}', [StaFacilityController::class, 'destroy']);
+});
+
+// Contact Route
+Route::post('/contact', [ContactController::class, 'store']);
+
+// Booking Route (Public)
+Route::post('/bookings', [BookingController::class, 'store']);
+
+// Statistic Routes (Public)
 Route::get('/statistic', [StatisticController::class, 'index']);
 Route::get('/statistic/bookings', [StaBookingController::class, 'index']);
 Route::get('/statistic/suggestions', [StaFeedbackController::class, 'getSuggestions']);
@@ -98,16 +62,82 @@ Route::get('/statistic/rooms', [StaRoomController::class, 'index']);
 Route::get('/statistic/customers', [StaCustomerController::class, 'index']);
 Route::get('/statistic/revenue', [StaRevenueController::class, 'index']);
 
+// Booking Management (Admin)
 Route::post('/statistic/bookings/{id}/confirm', [StaBookingController::class, 'confirm']);
 Route::post('/statistic/bookings/{id}/cancel', [StaBookingController::class, 'cancel']);
 Route::post('/statistic/bookings/{id}/use-room', [StaBookingController::class, 'useRoom']);
 Route::post('/statistic/bookings/{id}/complete-room', [StaBookingController::class, 'completeRoom']);
 Route::post('/statistic/bookings/{id}/refund', [StaBookingController::class, 'refund']);
 
-
+// Booking Actions
 Route::post('/bookings/{id}/customer-cancel', [BookingActionController::class, 'customerCancel']);
 Route::post('/bookings/{id}/pay', [BookingActionController::class, 'processPayment']);
 Route::post('/bookings/{id}/review', [BookingActionController::class, 'submitReview']);
 
-// Route::middleware('auth:sanctum')->group(function () {
-// });
+// History
+Route::get('/histories', [HistoryController::class, 'index']);
+
+// User Management (Admin)
+Route::get('/users', [UserController::class, 'getAllUsers']);
+Route::get('/users/{id}', [UserController::class, 'getUserById']);
+
+// ===== PROTECTED ROUTES (CẦN ĐĂNG NHẬP) =====
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // ===== USER PROFILE ROUTES (MỚI THÊM) =====
+    Route::get('/profile', [UserController::class, 'getProfile']);
+    Route::post('/update-profile', [UserController::class, 'updateProfile']);
+    Route::post('/change-password', [UserController::class, 'changePassword']);
+    Route::delete('/delete-avatar', [UserController::class, 'deleteAvatar']);
+    
+});
+
+// ===== OPTIONS ROUTES (CORS Preflight) =====
+Route::options('/login', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/register', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/contact', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/bookings', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/rooms', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/rooms/{id}', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/facilities/{id}', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/users/{id}', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/bookings/{id}/review', function () {
+    return response()->json(null, 200);
+});
+
+// ===== OPTIONS CHO USER PROFILE (MỚI THÊM) =====
+Route::options('/profile', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/update-profile', function () {
+    return response()->json(null, 200);
+});
+
+Route::options('/change-password', function () {
+    return response()->json(null, 200);
+});

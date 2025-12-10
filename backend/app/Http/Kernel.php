@@ -40,12 +40,12 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Fruitcake\Cors\HandleCors::class,
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-            'throttle:api',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ],
-    ];
+        // Đảm bảo HandleCors là cái đầu tiên
+        \Fruitcake\Cors\HandleCors::class, 
+        \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+];
 
     /**
      * The application's route middleware.

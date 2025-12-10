@@ -24,9 +24,8 @@ const FacilityCard = ({ facility }) => {
         e.currentTarget.style.boxShadow = "8px 8px 15px rgba(0, 0, 0, 0.5)";
       }}
     >
-      
       <img
-          src={facility.icon}
+          src={`http://127.0.0.1:8000/${facility.icon}`}
           alt={facility.name}
           style={{ width: "50%", borderRadius: "3px",
             objectFit: "cover", margin: "15px 5px -5px 5px",}}

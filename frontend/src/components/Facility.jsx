@@ -64,7 +64,7 @@ export default function Facility() {
             {/* Icon */}
 
                 <img
-                  src={f.icon}
+                  src={`http://127.0.0.1:8000/${f.icon}`}
                   alt={f.name}
                   style={{ width: "60%", objectFit: "contain" }}
                 />
