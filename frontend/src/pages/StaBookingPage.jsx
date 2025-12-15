@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react"; // 1. THÊM useCallback
 import axios from "axios";
+import BackToTop from "../components/BackToTop";
 import { FaSort } from "react-icons/fa"; 
 
 const StaBookingPage = () => {
@@ -246,7 +247,7 @@ const StaBookingPage = () => {
   return (
     <div>
       <h2>Danh Sách Đơn Đặt Phòng</h2>
-
+ 
       {/* 5. THÊM LOGIC LOADING/ERROR/EMPTY VÀO ĐÂY */}
       {isLoading ? (
         <h1 style={{ textAlign: "center", margin: "100px 50px" }}>Đang tải danh sách...</h1>
@@ -258,7 +259,7 @@ const StaBookingPage = () => {
             <tr>
               <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={resetOrder}>STT</th>
               <th style={tableHeaderStyle} onClick={() => handleSort("invoice_id")}>
-                Mã đơn 
+                Mã đơn
               </th>
               <th style={tableHeaderStyle} onClick={() => handleSort("customer")}>
                 Khách hàng 
@@ -338,7 +339,7 @@ const StaBookingPage = () => {
                               onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.8)")} // Làm sáng màu khi hover
                               onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
                             >
-                              <span>{b.status || "Chờ xác nhận"}</span>
+                              <span>{b.status || "Chờ xác nhận"} ▼</span>
                             </div>
                           );
                         })()}

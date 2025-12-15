@@ -429,7 +429,7 @@ const PersonalPage = () => {
                     onClick={() => setIsEditing(true)}
                     style={{
                       ...buttonStyle,
-                      backgroundColor: "#1976d2",
+                      backgroundColor: "#00008b",
                       color: "white",
                     }}
                   >
@@ -439,18 +439,7 @@ const PersonalPage = () => {
 
                 {isEditing && (
                   <>
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      style={{
-                        ...buttonStyle,
-                        backgroundColor: loading ? "#ccc" : "#4caf50",
-                        color: "white",
-                      }}
-                    >
-                      {loading ? "Đang lưu..." : "💾 Lưu thay đổi"}
-                    </button>
-                    <button
+                  <button
                       type="button"
                       onClick={handleCancelEdit}
                       disabled={loading}
@@ -460,7 +449,18 @@ const PersonalPage = () => {
                         color: "white",
                       }}
                     >
-                      ❌ Hủy
+                      Hủy
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      style={{
+                        ...buttonStyle,
+                        backgroundColor: loading ? "#ccc" : "#2c8c2fff",
+                        color: "white",
+                      }}
+                    >
+                      {loading ? "Đang lưu..." : "Lưu thay đổi"}
                     </button>
                   </>
                 )}
@@ -479,7 +479,7 @@ const PersonalPage = () => {
           >
             <h2 style={{ 
               textAlign: "center", 
-              color: "#1976d2", 
+              color: "#00008b", 
               marginBottom: "30px",
               display: "flex",
               alignItems: "center",
@@ -530,7 +530,7 @@ const PersonalPage = () => {
                   onClick={() => setIsChangingPassword(true)}
                   style={{
                     ...buttonStyle,
-                    backgroundColor: "#1976d2",
+                    backgroundColor: "#00008b",
                     color: "white",
                   }}
                 >
@@ -592,17 +592,6 @@ const PersonalPage = () => {
                   }}
                 >
                   <button
-                    type="submit"
-                    disabled={passwordLoading}
-                    style={{
-                      ...buttonStyle,
-                      backgroundColor: passwordLoading ? "#ccc" : "#4caf50",
-                      color: "white",
-                    }}
-                  >
-                    {passwordLoading ? "Đang xử lý..." : "✅ Xác nhận đổi"}
-                  </button>
-                  <button
                     type="button"
                     onClick={handleCancelPasswordChange}
                     disabled={passwordLoading}
@@ -612,7 +601,18 @@ const PersonalPage = () => {
                       color: "white",
                     }}
                   >
-                    ❌ Hủy
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={passwordLoading}
+                    style={{
+                      ...buttonStyle,
+                      backgroundColor: passwordLoading ? "#ccc" : "#0b8519ff",
+                      color: "white",
+                    }}
+                  >
+                    {passwordLoading ? "Đang xử lý..." : "Xác nhận đổi"}
                   </button>
                 </div>
               </form>

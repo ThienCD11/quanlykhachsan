@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import BackToTop from "../components/BackToTop";
+import Messenger from "../components/Messenger";
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -207,6 +209,8 @@ const ContactPage = () => {
       </section>
 
       <Footer />
+      <BackToTop />
+      <Messenger />
     </div>
   );
 };

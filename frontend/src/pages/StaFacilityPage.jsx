@@ -312,9 +312,9 @@ const StaFacilityPage = () => {
             <tr>
               <th style={{...tableHeaderStyle, width: '5%', textAlign: 'center'}}>STT</th>
               <th style={{...tableHeaderStyle, width: '10%', textAlign: 'center'}}>Icon</th>
-              <th style={{...tableHeaderStyle, width: '25%'}}>Tên tiện nghi</th>
-              <th style={{...tableHeaderStyle}}>Mô tả</th>
-              <th style={{...tableHeaderStyle, textAlign: 'center', width: '150px'}}>Hành động</th>
+              <th style={{...tableHeaderStyle, width: '15%', textAlign: 'left'}}>Tên tiện nghi</th>
+              <th style={{...tableHeaderStyle, textAlign: 'center'}}>Mô tả</th>
+              <th style={{...tableHeaderStyle, textAlign: 'center', width: '130px'}}>Hành động</th>
             </tr>
           </thead>
           <tbody>
@@ -333,7 +333,7 @@ const StaFacilityPage = () => {
                   )}
                 </td>
                 <td style={tableCellStyle}>{facility.name}</td>
-                <td style={tableCellStyle}>{facility.description}</td>
+                <td style={{...tableCellStyle, textAlign: 'justify'}}>{facility.description}</td>
                 <td style={{ ...tableCellStyle, textAlign: 'center' }}>
                   <button
                     onClick={() => handleOpenEditModal(facility)}

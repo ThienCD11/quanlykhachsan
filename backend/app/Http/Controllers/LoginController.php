@@ -3,44 +3,52 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// 1. Sử dụng Model User thay vì DB::table
 use App\Models\User;
-// 2. Import thư viện Hash để kiểm tra mật khẩu
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException; // Thường dùng cho lỗi xác thực
 
 class LoginController extends Controller
-{
+{ 
     public function login(Request $request)
     {
         $request->validate([
-            'phone' => 'required|string',
+            'email' => 'required|email',
             'password' => 'required|string',
         ]);
 
-        $phone = $request->phone;
         $password = $request->password;
+        $email = $request->email;
 
-        // 3. Tìm người dùng bằng Model
-        // (Hãy đảm bảo bạn đã tạo model User: php artisan make:model User)
-        $user = User::where('phone', $phone)->first();
+        // 1. Tìm người dùng
+        $user = User::where('email', $email)->first();
 
-        // 4. Kiểm tra user tồn tại VÀ mật khẩu đã mã hóa có khớp không
+        // 2. Kiểm tra user tồn tại VÀ mật khẩu có khớp không
         if ($user && Hash::check($password, $user->password)) {
+            
+            // --- RÀNG BUỘC KÍCH HOẠT MỚI THÊM ---
+            if (!$user->is_active) {
+                // Trả về lỗi nếu tài khoản không hoạt động
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tài khoản của bạn hiện đang bị vô hiệu hóa và không thể đăng nhập. Vui lòng liên hệ quản trị viên.'
+                ], 403); // 403 Forbidden (hoặc 401 Unauthorized nếu bạn muốn gộp chung với lỗi sai mật khẩu)
+            }
+            // --- KẾT THÚC RÀNG BUỘC ---
+
             // Đăng nhập thành công
             $token = $user->createToken('authToken')->plainTextToken;
 
-            // 2. TRẢ VỀ RESPONSE CÓ BAO GỒM TOKEN
             return response()->json([
                 'success' => true,
                 'user' => $user,
-                'token' => $token // <<-- THÊM DÒNG NÀY
+                'token' => $token
             ]);
         } else {
-            // Sai SĐT hoặc mật khẩu
+            // Sai Email hoặc mật khẩu
             return response()->json([
                 'success' => false,
-                'message' => 'Số điện thoại hoặc Mật khẩu không đúng'
-            ], 401); // 401: Lỗi xác thực
+                'message' => 'Email hoặc Mật khẩu không đúng'
+            ], 401); 
         }
     }
 }

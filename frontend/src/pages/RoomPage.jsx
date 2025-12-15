@@ -5,7 +5,9 @@ import axios from "axios"; // Dùng axios
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import RoomCard from "../components/RoomCard";
-import SearchRoom from "../components/SearchRoom"; // Component mới của bạn
+import SearchRoom from "../components/SearchRoom"; 
+import BackToTop from "../components/BackToTop";
+import Messenger from "../components/Messenger";
 import "../css/RoomPage.css"; 
 
 const RoomsPage = () => {
@@ -95,6 +97,8 @@ const RoomsPage = () => {
         </div>
       </section>
       <Footer />
+      <BackToTop />
+      <Messenger />
     </>
   );
 };

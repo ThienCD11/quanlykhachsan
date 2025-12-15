@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, Navigate } from "react-router-dom";
 import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import BackToTop from "../components/BackToTop";
 import { AuthContext } from "../App";
 
 // -------------------------------------------------------------------
@@ -192,7 +193,7 @@ const StatisticPage = () => {
                         Quản lý tiện nghi
                     </NavLink>
                     <NavLink to="/statistic/customers" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
-                        Quản lý khách hàng
+                        Quản lý tài khoản
                     </NavLink>
                     <NavLink to="/statistic/revenue" style={({ isActive }) => ({ ...navLinkStyle, ...(isActive ? activeStyle : {}) })}>
                         Thống kê Doanh Thu
@@ -204,6 +205,7 @@ const StatisticPage = () => {
                     {isDashboardPage ? <StatisticDashboard /> : <Outlet />}
                 </div>
             </div>
+            <BackToTop />
             <Footer />
         </div>
     );

@@ -4,12 +4,16 @@ import axios from "axios"; // Thư viện để gọi API
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import arrow from "../images/arrow.png";
+import BackToTop from "../components/BackToTop";
+import Messenger from "../components/Messenger";
 import { AuthContext } from "../App";
+import { useNavigate } from "react-router-dom";
 
 const BookingPage = () => {
   const { roomId } = useParams(); // Lấy `roomId` từ URL, ví dụ: "3"
   const [room, setRoom] = useState(null); // State để lưu thông tin phòng lấy từ API
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -96,13 +100,24 @@ const BookingPage = () => {
       // Gọi đến endpoint /api/bookings mà bạn đã tạo ở backend
       const response = await axios.post('http://127.0.0.1:8000/api/bookings', bookingData);
 
-      // Xử lý thành công
-      console.log('Đặt phòng thành công:', response.data);
-      alert(response.data.message || "Đặt phòng thành công!"); // Hiển thị alert thành công
+      // // Xử lý thành công
+      // console.log('Đặt phòng thành công:', response.data);
+      // alert(response.data.message || "Đặt phòng thành công!"); // Hiển thị alert thành công
       
-      // Reset ngày sau khi đặt thành công
-      setCheckInDate("");
-      setCheckOutDate("");
+      // navigate("/history");
+      // setCheckInDate("");
+      // setCheckOutDate("");
+      console.log('Đặt phòng thành công:', response.data);
+      const successMessage = response.data.message || "Đặt phòng thành công!";
+
+      // 1. Hiển thị thông báo (chặn luồng)
+      alert(successMessage);
+
+      // 2. Bọc navigate trong setTimeout
+      // Đảm bảo lệnh điều hướng chạy sau khi alert đã bị tắt.
+      setTimeout(() => {
+          navigate("/history");
+      }, 50);
 
     } catch (error) {
       // Xử lý lỗi
@@ -299,6 +314,8 @@ const BookingPage = () => {
         )}  
       </section>
       <Footer />
+      <BackToTop />
+      <Messenger />
     </div>
   );
 };

@@ -7,6 +7,8 @@ import Facility from "../components/Facility";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import About from "../components/About";
+import BackToTop from "../components/BackToTop";
+import Messenger from "../components/Messenger";
 
 export default function HomePage() {
   return (
@@ -20,6 +22,8 @@ export default function HomePage() {
       <Facility />
       <Contact />
       <Footer />
+      <BackToTop />
+      <Messenger />
     </div>
   );
 }

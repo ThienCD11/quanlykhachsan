@@ -7,6 +7,7 @@ import FacilitiesPage from "./pages/FacilitiesPage";
 import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from './pages/RegisterPage';
+import PasswordPage from './pages/PasswordPage';
 import BookingPage from "./pages/BookingPage";
 import StatisticPage from "./pages/StatisticPage";
 import HistoryPage from './pages/HistoryPage';
@@ -76,6 +77,7 @@ function App() {
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/password" element={<PasswordPage />} />
           <Route path="/booking/:roomId" element={<BookingPage />} />
           <Route path="/history/*" element={<HistoryPage />} />
           <Route path="/personal" element={<PersonalPage />} />

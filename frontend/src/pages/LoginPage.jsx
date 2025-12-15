@@ -6,7 +6,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../App.js";
 
 const LoginPage = () => {
-  const [phone, setPhone] = useState("");
+  // const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -20,7 +21,8 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post("http://localhost:8000/api/login", {
-        phone,
+        // phone,
+        email,
         password,
       });
 
@@ -74,7 +76,7 @@ const LoginPage = () => {
             background: "white",
             padding: "40px 50px",
             borderRadius: "10px",
-            width: "350px",
+            width: "390px",
             boxShadow: "10px 10px 10px rgba(0,0,0,0.2)",
           }}
         >
@@ -83,12 +85,15 @@ const LoginPage = () => {
           </h2>
 
           <form onSubmit={handleLogin}>
-            <label>Số điện thoại</label>
+            <label>Tài khoản (Email)</label>
             <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Nhập số điện thoại"
+              // type="text"
+              // value={phone}
+              // onChange={(e) => setPhone(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Nhập email"
               style={{
                 width: "94%",
                 padding: "10px",
@@ -153,9 +158,15 @@ const LoginPage = () => {
                 Đăng ký ngay
               </Link>
             </p>
+            <p style={{ textAlign: "center", marginTop: "20px", fontSize: "14px" }}>
+              <Link to="/password" style={{ color: "darkblue", fontWeight: "bold", textDecoration: "none" }}>
+                Quên mật khẩu
+              </Link>
+            </p>
+
           </form>
         </div>
-      </div>
+      </div> 
       <Footer />
     </>
   );

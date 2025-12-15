@@ -56,7 +56,7 @@ const StaRoomPage = () => {
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage = 15;
+  const rowsPerPage = 10;
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
@@ -406,7 +406,7 @@ const StaRoomPage = () => {
             <th style={tableHeaderStyle} onClick={() => handleSort("price")}>Giá phòng</th>
             <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("capacity")}>Sức chứa</th>
             <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("bookings_count")}>Lượt đặt</th>
-            <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("reviews_count")}>Lượt đánh giá</th>
+            <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("reviews_count")}>Đánh giá</th>
             <th style={{...tableHeaderStyle, width: '100px', textAlign: 'center'}} onClick={() => handleSort("rating_avg")}>Rating (TB)</th>
             <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("status")}>Trạng thái</th>
             <th style={{...tableHeaderStyle, textAlign: 'center', width: '150px'}}>Hành động</th>
@@ -558,7 +558,7 @@ const StaRoomPage = () => {
                   value={formData.name}
                   onChange={handleInputChange}
                   style={inputStyle}
-                  placeholder="Ví dụ: Phòng Standard"
+                  placeholder="Ví dụ: Standard"
                   required
                 />
               </div>

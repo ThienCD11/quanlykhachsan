@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import FacilityCard from "../components/FacilityCard";
+import BackToTop from "../components/BackToTop";
+import Messenger from "../components/Messenger";
 
 const FacilitiesPage = () => {
   const [facilities, setFacilities] = useState([]);
@@ -61,6 +63,8 @@ const FacilitiesPage = () => {
       )}
       </section>
       <Footer />
+      <BackToTop />
+      <Messenger />
     </>
   );
 };

@@ -2,7 +2,9 @@ import React, { useState, useEffect, useContext, useCallback } from "react"; // 
 import axios from "axios"; // Dùng axios cho nhất quán
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import HistoryCard from "../components/HistoryCard"; // Import HistoryCard
+import HistoryCard from "../components/HistoryCard"; 
+import BackToTop from "../components/BackToTop";
+import Messenger from "../components/Messenger";
 import { AuthContext } from "../App"; // Import AuthContext
  
 const HistoryPage = () => {
@@ -126,6 +128,8 @@ const HistoryPage = () => {
       )}
       </section>
       <Footer />
+      <BackToTop />
+      <Messenger />
     </>
   );
 };

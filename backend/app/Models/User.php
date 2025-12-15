@@ -14,7 +14,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Các thuộc tính được phép gán hàng loạt (Mass Assignable).
      *
      * @var array<int, string>
      */
@@ -24,11 +24,13 @@ class User extends Authenticatable
         'email',
         'password',
         'address',
+        'role',
+        'is_active', // <--- Đã thêm cột mới
         'avatar',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Các thuộc tính nên được ẩn khỏi Serialization.
      *
      * @var array<int, string>
      */
@@ -38,16 +40,42 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Các thuộc tính nên được ép kiểu (Casting).
      *
      * @var array<string, string>
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean', // <--- Tùy chọn: Ép kiểu is_active sang boolean
     ];
 
+    // --- ĐỊNH NGHĨA CÁC MỐI QUAN HỆ (Relationships) ---
+
+    /**
+     * Mối quan hệ với các đơn đặt phòng (Bookings).
+     */
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Mối quan hệ với các đánh giá (Reviews).
+     * Cần thiết cho việc Xóa tầng (Cascading Delete).
+     */
+    public function reviews(): HasMany
+    {
+        // Bạn cần đảm bảo Model Review tồn tại
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Mối quan hệ với các gợi ý/phản hồi (Suggestions).
+     * Cần thiết cho việc Xóa tầng (Cascading Delete).
+     */
+    public function suggestions(): HasMany
+    {
+        // Bạn cần đảm bảo Model Suggestion tồn tại
+        return $this->hasMany(Suggestion::class);
     }
 }

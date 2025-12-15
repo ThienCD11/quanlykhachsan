@@ -246,8 +246,8 @@ const StaRevenuePage = () => {
                             data={data.pieData}
                             cx="50%"
                             cy="50%"
-                            innerRadius={70}
-                            outerRadius={100}
+                            innerRadius={60}
+                            outerRadius={90}
                             fill="#8884d8"
                             paddingAngle={1}
                             dataKey="value"
