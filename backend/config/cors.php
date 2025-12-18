@@ -15,26 +15,21 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    'allowed_methods' => ['*'],
+'allowed_methods' => ['*'],
 
-    'allowed_origins' => [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        // 'http://localhost:8000',
-        // 'http://127.0.0.1:8000',
-        // 'https://ftztsdsk-8000.asse.devtunnels.ms',
-    ],
+// Sửa dòng này: Cho phép cả localhost và 127.0.0.1 để tránh lỗi
+'allowed_origins' => ['http://localhost:3000', 'http://127.0.0.1:3000'], 
 
-    'allowed_origins_patterns' => [],
+'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'],
+'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+'exposed_headers' => [],
 
-    'max_age' => 0,
+'max_age' => 0,
 
-    'supports_credentials' => true,
+'supports_credentials' => false,
 
 ];

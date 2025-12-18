@@ -19,7 +19,7 @@ import StaFeedbackPage from './pages/StaFeedbackPage';
 import StaCustomerPage from './pages/StaCustomerPage.jsx';
 import StaRevenuePage from './pages/StaRevenuePage.jsx';
 import StaFacilityPage from './pages/StaFacilityPage.jsx';
-
+import PaymentReturn from './pages/PaymentReturn';
 // 1. Tạo một Context để chia sẻ state 'user'
 export const AuthContext = createContext(null);
 
@@ -81,6 +81,7 @@ function App() {
           <Route path="/booking/:roomId" element={<BookingPage />} />
           <Route path="/history/*" element={<HistoryPage />} />
           <Route path="/personal" element={<PersonalPage />} />
+          <Route path="/payment-return" element={<PaymentReturn />} />
 
           <Route path="/statistic/*" element={<StatisticPage />} >
             <Route path="bookings" element={<StaBookingPage />} />

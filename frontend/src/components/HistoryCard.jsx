@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import axios from "axios";
-import qrCodeImage from "../images/QR.png";
+// import qrCodeImage from "../images/QR.png"; // Không cần dùng ảnh QR tĩnh nữa
 import "../css/HistoryCard.css"
 
-
+// --- GIỮ NGUYÊN REVIEW MODAL (Không thay đổi) ---
 const ReviewModal = ({ booking, onClose, onSuccess }) => {
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
@@ -63,13 +63,16 @@ const ReviewModal = ({ booking, onClose, onSuccess }) => {
         </div>
     );
 };
+// --- HẾT REVIEW MODAL ---
+
 
 const HistoryCard = ({ history, onUpdate }) => {
     const [isProcessing, setIsProcessing] = useState(false);
     const [apiError, setApiError] = useState("");
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    // const [showPaymentModal, setShowPaymentModal] = useState(false); // Bỏ state Modal thanh toán
     const [showReviewModal, setShowReviewModal] = useState(false);
 
+    // Xử lý Hủy phòng (Giữ nguyên)
     const handleCancelBooking = async () => {
         if (window.confirm(`Bạn có chắc muốn hủy đặt phòng ${history.room_name} không?`)) {
             setIsProcessing(true);
@@ -82,19 +85,27 @@ const HistoryCard = ({ history, onUpdate }) => {
         }
     };
 
-    const handleConfirmPayment = async () => {
-        setIsProcessing(true);
-        try {
-            await axios.post(`http://127.0.0.1:8000/api/bookings/${history.id}/pay`);
-            onUpdate();
-            setShowPaymentModal(false);
-        } catch (err) {
-            setApiError(err.response?.data?.message || "Lỗi: Thanh toán thất bại.");
-        } finally { setIsProcessing(false); }
-    };
+    // --- [THAY ĐỔI LỚN] XỬ LÝ THANH TOÁN VNPAY ---
+const handleVnPayPayment = async () => {
+  try {
+    const res = await axios.post(
+      "http://127.0.0.1:8000/api/vnpay/create-payment",
+      {
+        booking_id: history.id,
+        amount: history.total_price
+      }
+    );
+
+    window.location.href = res.data.paymentUrl;
+  } catch (e) {
+    alert("Không thể tạo thanh toán");
+  }
+};
+
  
     const renderActions = () => {
         const { status, has_review } = history;
+        
         if (status === "Chờ xác nhận" || status === null) {
             return (
                 <>
@@ -103,18 +114,28 @@ const HistoryCard = ({ history, onUpdate }) => {
                 </>
             );
         }
+
+        // --- SỬA LOGIC NÚT THANH TOÁN ---
         if (status === "Chờ thanh toán") {
             return (
                 <>
-                    <button className="action-button btn-payment" onClick={() => setShowPaymentModal(true)} disabled={isProcessing}>Thanh toán</button>
+                    {/* Gọi hàm handleVnPayPayment thay vì mở Modal */}
+                    <button 
+                        className="action-button btn-payment" 
+                        onClick={handleVnPayPayment} 
+                        disabled={isProcessing}
+                    >
+                        {isProcessing ? "Đang chuyển hướng..." : "Thanh toán VNPAY"}
+                    </button>
                     <button className="action-button btn-cancel" onClick={handleCancelBooking} disabled={isProcessing}>Hủy đặt phòng</button>
                 </>
             );
         }
+
         if (status === "Đã thanh toán") {
             return (
                 <>
-                    <button className="status-badge status-pending" disabled>Đã thanh toán</button>
+                    <button className="status-badge status-paid" disabled>Đã thanh toán</button>
                     <button className="action-button btn-cancel" onClick={handleCancelBooking} disabled={isProcessing}>Hủy đặt phòng</button>
                 </>
             );
@@ -122,10 +143,7 @@ const HistoryCard = ({ history, onUpdate }) => {
         if (status === "Hoàn thành") {
             return (
                 <>
-                    <button 
-                        className={`status-badge status-paid ${has_review ? 'full-width' : ''}`} 
-                        disabled
-                    >
+                    <button className={`status-badge status-paid ${has_review ? 'full-width' : ''}`} disabled>
                         Hoàn thành
                     </button>
                     {!has_review && (
@@ -139,7 +157,7 @@ const HistoryCard = ({ history, onUpdate }) => {
                 </>
             );
         }
-        // Các trạng thái full-width
+        
         const canceledBadges = ["Đang sử dụng", "Đã hủy"];
         if (canceledBadges.includes(status)) {
             return <button className="status-badge full-width status-canceled" disabled>{status}</button>;
@@ -163,25 +181,13 @@ const HistoryCard = ({ history, onUpdate }) => {
                 <p className="history-detail">Ngày đặt: {history.booked_at}</p>
                 <p className="history-detail">ID đơn: {history.invoice_id}</p>
                 <p className="history-detail">Thanh toán: {history.total_price}</p>
+                
                 {apiError && <p className="api-error">{apiError}</p>}
+                
                 <div className="history-actions">{renderActions()}</div>
             </div>
 
-            {showPaymentModal && (
-                <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
-                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="modal-close-btn" onClick={() => setShowPaymentModal(false)}>&times;</button>
-                        <h2 style={{ color: 'navy' }}>Xác nhận thanh toán</h2>
-                        <p>ID đơn: <strong>{history.invoice_id}</strong></p>
-                        <img src={qrCodeImage} alt="QR Code" className="modal-qr-image" />
-                        <p>Tổng tiền: <strong style={{ color: 'red' }}>{history.total_price}</strong></p>
-                        <div className="modal-actions">
-                            <button className="action-button btn-cancel" onClick={() => setShowPaymentModal(false)}>Hủy</button>
-                            <button className="action-button btn-payment" onClick={handleConfirmPayment} >Xác nhận</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Đã xóa Modal Thanh toán (showPaymentModal) ở đây */}
 
             {showReviewModal && (
                 <ReviewModal booking={history} onClose={() => setShowReviewModal(false)} onSuccess={() => onUpdate()} />

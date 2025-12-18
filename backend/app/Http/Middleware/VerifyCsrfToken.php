@@ -12,8 +12,8 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
-        'api/*',
-
+        // THÊM DÒNG NÀY: Cho phép React gọi API mà không bị chặn
+        'api/*', 
+        'payment-return', // Nếu bạn có route này cho return
     ];
 }
