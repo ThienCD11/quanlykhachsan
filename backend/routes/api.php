@@ -21,9 +21,12 @@ use App\Http\Controllers\UserController;
 // ===== PUBLIC ROUTES =====
 
 use App\Http\Controllers\PaymentController;
-
 Route::post('/vnpay/create-payment', [PaymentController::class, 'createPayment']);
 Route::get('/vnpay/callback', [PaymentController::class, 'callback']);
+
+use App\Http\Controllers\PasswordController;
+Route::post('/password/email', [PasswordController::class, 'sendResetCode']);
+Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
 
 
 // Auth Routes
