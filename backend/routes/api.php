@@ -84,6 +84,7 @@ Route::post('/statistic/bookings/{id}/cancel', [StaBookingController::class, 'ca
 Route::post('/statistic/bookings/{id}/use-room', [StaBookingController::class, 'useRoom']);
 Route::post('/statistic/bookings/{id}/complete-room', [StaBookingController::class, 'completeRoom']);
 Route::post('/statistic/bookings/{id}/refund', [StaBookingController::class, 'refund']);
+Route::post('/statistic/bookings/{id}/export-invoice', [StaBookingController::class, 'exportInvoice']);
 
 Route::post('/statistic/customers/{user}/promote', [StaCustomerController::class, 'promoteAdmin']);
 Route::post('/statistic/customers/{user}/toggle-active', [StaCustomerController::class, 'toggleActive']);

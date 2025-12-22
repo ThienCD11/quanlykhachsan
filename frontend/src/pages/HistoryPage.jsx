@@ -215,7 +215,7 @@ const HistoryPage = () => {
                     padding: '20px', 
                     backgroundColor: '#F9F9F9', 
                     borderRadius: '8px',
-                    borderLeft: '4px solid #00007aff',
+                    borderLeft: '5px solid #00007aff',
                     position: 'relative'
                   }}
                 >
@@ -291,7 +291,7 @@ const HistoryPage = () => {
                         onClick={() => handleViewDetails(review.room_id)}
                         style={{
                           padding: '8px 15px',
-                          backgroundColor: '#28a745',
+                          backgroundColor: '#00008b',
                           color: 'white',
                           border: 'none',
                           borderRadius: '5px',
@@ -301,8 +301,8 @@ const HistoryPage = () => {
                           transition: 'background-color 0.3s',
                           whiteSpace: 'nowrap'
                         }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#218838'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#28a745'}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#03035aff'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#00008b'}
                       >
                         Xem chi tiết
                       </button>
@@ -312,7 +312,7 @@ const HistoryPage = () => {
                         onClick={() => handleDeleteReview(review.id)}
                         style={{
                           padding: '8px 15px',
-                          backgroundColor: '#dc3545',
+                          backgroundColor: '#c2071aff',
                           color: 'white',
                           border: 'none',
                           borderRadius: '5px',
@@ -322,8 +322,8 @@ const HistoryPage = () => {
                           transition: 'background-color 0.3s',
                           whiteSpace: 'nowrap'
                         }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#c82333'}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#dc3545'}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = '#890815ff'}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = '#c2071aff'}
                       >
                         Xóa đánh giá
                       </button>

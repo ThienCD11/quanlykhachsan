@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Mail\BookingConfirmedMail;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StaBookingController extends Controller
 {
@@ -44,23 +47,37 @@ class StaBookingController extends Controller
     }
 
     /**
-     * Admin: Xác nhận đơn đặt phòng (th1 -> th2: Chờ xác nhận -> Chờ thanh toán)
+     * Admin: Xác nhận đơn đặt phòng và GỬi Mail (th1 -> th2: Chờ xác nhận -> Chờ thanh toán)
      */
     public function confirm($id)
     {
-        $booking = Booking::find($id);
+        $booking = Booking::with('user')->find($id);
+        
         if (!$booking) {
             return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn!'], 404);
         }
 
         if ($booking->status !== 'Chờ xác nhận') {
-             return response()->json(['success' => false, 'message' => 'Đơn không ở trạng thái Chờ xác nhận để xác nhận.'], 400);
+             return response()->json(['success' => false, 'message' => 'Đơn không ở trạng thái Chờ xác nhận.'], 400);
         }
 
-        $booking->status = 'Chờ thanh toán'; // th2
+        $booking->status = 'Chờ thanh toán';
         $booking->save();
 
-        return response()->json(['success' => true, 'message' => 'Đã xác nhận đơn. Trạng thái chuyển sang Chờ thanh toán!']);
+        // Gửi email xác nhận cho khách hàng
+        try {
+            if ($booking->user && $booking->user->email) {
+                Mail::to($booking->user->email)->send(new BookingConfirmedMail($booking));
+            }
+        } catch (\Exception $e) {
+            // Log lỗi nếu không gửi được mail nhưng vẫn trả về confirm thành công
+            \Log::error("Mail Error: " . $e->getMessage());
+        }
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Đã xác nhận đơn và gửi email thông báo cho khách hàng!'
+        ]);
     }
 
     /**
@@ -153,5 +170,53 @@ class StaBookingController extends Controller
         $booking->save();
 
         return response()->json(['success' => true, 'message' => 'Đã hoàn tiền thành công. Trạng thái chuyển sang Đã hoàn tiền.']);
+    }
+
+    /**
+     * Xuất hóa đơn PDF cho đơn hàng đã hoàn thành.
+     */
+    public function exportInvoice($id)
+    {
+        // Lấy dữ liệu booking cùng các quan hệ
+        $booking = Booking::with(['user', 'room'])->find($id);
+
+        if (!$booking) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy đơn!'], 404);
+        }
+
+        try {
+            // Parse ngày bằng Carbon
+            $checkinRaw = \Carbon\Carbon::parse($booking->check_in);
+            $checkoutRaw = \Carbon\Carbon::parse($booking->check_out);
+            
+            // Tính số ngày (ít nhất 1 ngày)
+            $days = $checkoutRaw->diffInDays($checkinRaw) ?: 1;
+            
+            // Format lại ngày để hiển thị trong file PDF (d/m/Y)
+            $formattedCheckin = $checkinRaw->format('d/m/Y');
+            $formattedCheckout = $checkoutRaw->format('d/m/Y');
+
+            $totalPrice = $booking->price * $days;
+
+            $data = [
+                'booking' => $booking,
+                'days' => $days,
+                'totalPrice' => $totalPrice,
+                'checkin' => $formattedCheckin,   // Ngày vào đã format
+                'checkout' => $formattedCheckout, // Ngày trả đã format
+                'date' => \Carbon\Carbon::now()->format('d/m/Y'),
+            ];
+
+            // Load view và đổ dữ liệu vào PDF
+            // Đảm bảo bạn sử dụng biến $checkin và $checkout trong file invoice.blade.php
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.invoice', $data);
+
+            // Trả về file PDF với tên file chứa invoice_id
+            return $pdf->download('hoadon-' . ($booking->invoice_id ?? $id) . '.pdf');
+
+        } catch (\Exception $e) {
+            \Log::error("PDF Export Error: " . $e->getMessage());
+            return response()->json(['error' => 'Lỗi hệ thống khi tạo PDF: ' . $e->getMessage()], 500);
+        }
     }
 }
