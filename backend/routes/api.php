@@ -17,8 +17,14 @@ use App\Http\Controllers\StaFeedbackController;
 use App\Http\Controllers\StaCustomerController;
 use App\Http\Controllers\StaRevenueController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ReviewController;
 
 // ===== PUBLIC ROUTES =====
+
+// routes/api.php
+Route::get('/reviews/room/{roomId}', [ReviewController::class, 'getReviewsByRoom']);
+Route::get('/reviews/user/{userId}', [ReviewController::class, 'getReviewsByUser']);
+Route::delete('/reviews/{id}', [ReviewController::class, 'deleteReview']);
 
 use App\Http\Controllers\PaymentController;
 Route::post('/vnpay/create-payment', [PaymentController::class, 'createPayment']);
@@ -28,7 +34,8 @@ use App\Http\Controllers\PasswordController;
 Route::post('/password/email', [PasswordController::class, 'sendResetCode']);
 Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
 
-
+// routes/api.php
+Route::get('/reviews/room/{roomId}', [ReviewController::class, 'getReviewsByRoom']);
 // Auth Routes
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/register', [RegisterController::class, 'register']);

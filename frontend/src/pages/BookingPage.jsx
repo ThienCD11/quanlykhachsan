@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
-import { useParams } from "react-router-dom"; // Hook để lấy tham số URL
-import axios from "axios"; // Thư viện để gọi API
+import { useParams } from "react-router-dom";
+import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import arrow from "../images/arrow.png";
@@ -10,8 +10,9 @@ import { AuthContext } from "../App";
 import { useNavigate } from "react-router-dom";
 
 const BookingPage = () => {
-  const { roomId } = useParams(); // Lấy `roomId` từ URL, ví dụ: "3"
-  const [room, setRoom] = useState(null); // State để lưu thông tin phòng lấy từ API
+  const { roomId } = useParams();
+  const [room, setRoom] = useState(null);
+  const [reviews, setReviews] = useState([]); // State cho đánh giá
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   
@@ -25,23 +26,33 @@ const BookingPage = () => {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // useEffect sẽ chạy khi component được tải lần đầu (hoặc khi roomId thay đổi)
+  // Lấy thông tin phòng
   useEffect(() => {
-    // Hàm để gọi API lấy chi tiết phòng
     const fetchRoomDetails = async () => {
       try {
         const response = await axios.get(`http://127.0.0.1:8000/api/rooms/${roomId}`);
-        setRoom(response.data); // Lưu dữ liệu phòng vào state
+        setRoom(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy thông tin phòng:", error);
-        // Có thể hiển thị một trang lỗi ở đây
       }
     };
     fetchRoomDetails();
-  }, [roomId]); // Dependency array, đảm bảo effect chỉ chạy lại khi roomId thay đổi
+  }, [roomId]);
+
+  // Lấy đánh giá của phòng
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/reviews/room/${roomId}`);
+        setReviews(response.data);
+      } catch (error) {
+        console.error("Lỗi khi lấy đánh giá:", error);
+      }
+    };
+    fetchReviews();
+  }, [roomId]);
 
   useEffect(() => {
-    // Chỉ cập nhật nếu có thông tin người dùng được truyền vào
     console.log('useEffect for user update is running. User:', user);
     if (user) {
       console.log('Updating form state with:', {
@@ -50,91 +61,91 @@ const BookingPage = () => {
         address: user.address,
         email: user.email
       });
-      setName(user.name || ''); // Lấy tên, nếu không có thì để rỗng
-      setPhone(user.phone || ''); // Lấy SĐT, nếu không có thì để rỗng
-      setAddress(user.address || ''); // Lấy địa chỉ, nếu không có thì để rỗng
-      setEmail(user.email || ''); // Lấy email, nếu không có thì để rỗng
+      setName(user.name || '');
+      setPhone(user.phone || '');
+      setAddress(user.address || '');
+      setEmail(user.email || '');
     } else {
        console.log('User prop is null or undefined, not updating form.');
     }
-  }, [user]); // Chạy lại effect này khi prop `user` thay đổi
+  }, [user]);
 
   const handleBooking = async (e) => { 
     e.preventDefault();
 
-    // 1. Kiểm tra đăng nhập
     if (!user) {
       alert("Vui lòng đăng nhập để đặt phòng!");
-      return; // Dừng lại nếu chưa đăng nhập
+      return;
     }
 
-    // 2. Kiểm tra thông tin phòng (đảm bảo room đã được load)
     if (!room) {
       alert("Thông tin phòng chưa được tải xong, vui lòng đợi giây lát.");
       setError("Thông tin phòng chưa được tải xong, vui lòng đợi giây lát.");
       return;
     }
 
-    // 3. Kiểm tra ngày tháng
     if (!checkInDate || !checkOutDate) {
-      // alert("Cung cấp đầy đủ ngày nhận phòng và trả phòng!");
       setError("Cung cấp ngày nhận phòng và trả phòng!");
       return;
     }
     
-    setIsSubmitting(true); // Bắt đầu vô hiệu hóa nút
+    setIsSubmitting(true);
 
-    // 4. Chuẩn bị dữ liệu gửi đi
     const bookingData = {
-        room_id: parseInt(roomId), // Đảm bảo roomId là số
-        user_id: user.id,          // Lấy từ context
+        room_id: parseInt(roomId),
+        user_id: user.id,
         check_in: checkInDate,
         check_out: checkOutDate,
-        price: room.price          // Lấy từ state 'room'
+        price: room.price
     };
 
     console.log("Đang gửi dữ liệu đặt phòng:", bookingData);
 
-    // 5. Gọi API
     try {
-      // Gọi đến endpoint /api/bookings mà bạn đã tạo ở backend
       const response = await axios.post('http://127.0.0.1:8000/api/bookings', bookingData);
 
-      // // Xử lý thành công
-      // console.log('Đặt phòng thành công:', response.data);
-      // alert(response.data.message || "Đặt phòng thành công!"); // Hiển thị alert thành công
-      
-      // navigate("/history");
-      // setCheckInDate("");
-      // setCheckOutDate("");
       console.log('Đặt phòng thành công:', response.data);
       const successMessage = response.data.message || "Đặt phòng thành công!";
 
-      // 1. Hiển thị thông báo (chặn luồng)
       alert(successMessage);
 
-      // 2. Bọc navigate trong setTimeout
-      // Đảm bảo lệnh điều hướng chạy sau khi alert đã bị tắt.
       setTimeout(() => {
           navigate("/history");
       }, 50);
 
     } catch (error) {
-      // Xử lý lỗi
       console.error("Lỗi khi đặt phòng:", error);
       let errorMessage = "Đã có lỗi xảy ra khi đặt phòng. Vui lòng thử lại.";
-      // Lấy thông báo lỗi cụ thể từ backend nếu có
       if (error.response && error.response.data && error.response.data.message) {
          errorMessage = error.response.data.message;
-      } else if (error.response && error.response.status === 422) { // Lỗi validation
+      } else if (error.response && error.response.status === 422) {
          const validationErrors = Object.values(error.response.data.errors).flat().join(' ');
          errorMessage = `${validationErrors}`;
       }
-      // alert(`Đặt phòng thất bại!\n${errorMessage}`); // Hiển thị alert lỗi
       setError(errorMessage);
     } finally {
-      setIsSubmitting(false); // Kích hoạt lại nút dù thành công hay lỗi
+      setIsSubmitting(false);
     }
+  };
+
+  // Hàm render sao đánh giá
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        <span key={i} style={{ color: i <= rating ? '#FFD700' : '#DDD', fontSize: '20px' }}>
+          ★
+        </span>
+      );
+    }
+    return stars;
+  };
+
+  // Hàm tính trung bình rating
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / reviews.length).toFixed(1);
   };
 
   const inputStyle = {
@@ -186,7 +197,6 @@ const BookingPage = () => {
                   XÁC NHẬN THÔNG TIN
                 </h3>
                 <form onSubmit={handleBooking} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', flexGrow: 1 }}>
-                  {/* Hàng 1: Tên & Số điện thoại */}
                   <div style={{ gridColumn: '1 / 2' }}>
                     <label>Tên khách hàng</label>
                     <input type="text" value={name} onChange={e => setName(e.target.value)} style={inputStyle} required />
@@ -196,18 +206,15 @@ const BookingPage = () => {
                     <input type="text" value={phone} onChange={e => setPhone(e.target.value)} style={inputStyle} required />
                   </div>
 
-                  {/* Hàng 2: Địa chỉ & Email */}
-                  <div style={{ gridColumn: '1 / 2' }}> {/* <<-- Sửa từ '1 / 3' thành '1 / 2' */}
+                  <div style={{ gridColumn: '1 / 2' }}>
                     <label>Địa Chỉ</label>
-                    {/* <<-- Đổi textarea thành input cho đồng bộ */}
                     <input type="text" value={address} onChange={e => setAddress(e.target.value)} style={inputStyle} required />
                   </div>
-                  <div style={{ gridColumn: '2 / 3' }}> {/* <<-- Thêm ô Email mới */}
+                  <div style={{ gridColumn: '2 / 3' }}>
                       <label>Email</label>
                       <input type="email" value={email} onChange={e => setEmail(e.target.value)} style={inputStyle} required />
                   </div>
 
-                  {/* Hàng 3: Ngày nhận & trả phòng */}
                   <div style={{ gridColumn: '1 / 2' }}>
                     <label>Ngày Nhận Phòng</label>
                     <input type="date" value={checkInDate} onChange={e => setCheckInDate(e.target.value)} style={inputStyle} />
@@ -228,7 +235,6 @@ const BookingPage = () => {
                     borderRadius: '5px', 
                   }}>{error}</p>}
                   
-                  {/* Nút đặt ngay được đẩy xuống dưới cùng */}
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -255,15 +261,13 @@ const BookingPage = () => {
             </div>
           </div>
           
-          <div style={{ marginTop: '40px', marginBottom: '100px', padding: '30px 40px', backgroundColor: 'white', boxShadow: '10px 10px 10px rgba(0,0,0,0.3)', borderRadius: '8px' }}>
+          <div style={{ marginTop: '40px', marginBottom: '40px', padding: '30px 40px', backgroundColor: 'white', boxShadow: '10px 10px 10px rgba(0,0,0,0.3)', borderRadius: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              {/* DÙNG DỮ LIỆU THẬT TỪ API */}
               <h3 style={{ fontSize: '25px', margin: 0 }}><strong>Phòng {room.name}</strong></h3>
               <p style={{ fontSize: '22px', margin: '0 8px 0 0', fontWeight: 'bold' }}>{Number(room.price).toLocaleString("vi-VN")} VNĐ / đêm</p>
             </div>
             <hr style={{ border: '0.1px solid #1e0166ff' }} />
             
-            {/* Thêm icon arrow vào trước các thẻ p */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
               <img src={arrow} style={{ height: "20px", marginTop: "-15px" }} alt="arrow icon"/>
               <p style={{ margin: 0 }}>{room.about}</p>
@@ -297,7 +301,6 @@ const BookingPage = () => {
               </p>
             </div>
 
-            {/* ... Phần tiện nghi không đổi ... */}
             <h4 style={{ marginBottom: '10px' }}>Tiện nghi phòng cơ bản:</h4>
             <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
                 <li><img src={arrow} style={{height: "20px", marginBottom:"-4px"}}/> Wi-Fi tốc độ cao</li>
@@ -309,6 +312,80 @@ const BookingPage = () => {
                 <li><img src={arrow} style={{height: "20px", marginBottom:"-4px"}}/> Tủ lạnh mini</li>
                 <li><img src={arrow} style={{height: "20px", marginBottom:"-4px"}}/> Còn nhiều tiện nghi nữa</li>
             </ul>
+          </div>
+
+          {/* Box hiển thị đánh giá */}
+          <div style={{ marginBottom: '100px', padding: '30px 40px', backgroundColor: 'white', boxShadow: '10px 10px 10px rgba(0,0,0,0.3)', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '25px', margin: 0 }}>
+                <strong>Đánh giá từ khách hàng</strong>
+              </h3>
+              {reviews.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div>{renderStars(Math.round(calculateAverageRating()))}</div>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
+                    {calculateAverageRating()} / 5.0
+                  </span>
+                  <span style={{ fontSize: '14px', color: '#666' }}>
+                    ({reviews.length} đánh giá)
+                  </span>
+                </div>
+              )}
+            </div>
+            <hr style={{ border: '0.1px solid #1e0166ff', marginBottom: '20px' }} />
+
+            {reviews.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#666', padding: '20px 0' }}>
+                Chưa có đánh giá nào cho phòng này.
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {reviews.map((review) => (
+                  <div 
+                    key={review.id} 
+                    style={{ 
+                      padding: '20px', 
+                      backgroundColor: '#F9F9F9', 
+                      borderRadius: '8px',
+                      borderLeft: '4px solid #00007aff'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ 
+                          width: '40px', 
+                          height: '40px', 
+                          borderRadius: '50%', 
+                          backgroundColor: '#00007aff', 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontWeight: 'bold',
+                          fontSize: '18px'
+                        }}>
+                          {review.user_id}
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
+                            Khách hàng #{review.user_id}
+                          </p>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '5px' }}>
+                            {renderStars(review.rating)}
+                          </div>
+                        </div>
+                      </div>
+                      <span style={{ fontSize: '13px', color: '#666' }}>
+                        {new Date(review.created_at).toLocaleDateString('vi-VN')}
+                      </span>
+                    </div>
+                    <p style={{ margin: '10px 0 0 55px', fontSize: '15px', lineHeight: '1.6', color: '#333' }}>
+                      {review.review}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
         )}  
