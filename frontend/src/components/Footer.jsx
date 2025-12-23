@@ -119,7 +119,7 @@ export default function Footer() {
         <div style={styles.footerSection}>
           <h4 style={styles.h4}>Theo dõi chúng tôi</h4>
           <div>
-            <a href="https://www.facebook.com/" style={styles.socialIconsLink}>
+            <a href="https://www.facebook.com/profile.php?id=61584513566943" style={styles.socialIconsLink}>
               <i className="fab fa-facebook-f" style={styles.socialIcon}></i> Facebook
             </a>
             <a href="https://www.instagram.com/" style={styles.socialIconsLink}>

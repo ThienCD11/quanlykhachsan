@@ -72,16 +72,31 @@ const HistoryCard = ({ history, onUpdate }) => {
     // const [showPaymentModal, setShowPaymentModal] = useState(false); // Bỏ state Modal thanh toán
     const [showReviewModal, setShowReviewModal] = useState(false);
 
-    // Xử lý Hủy phòng (Giữ nguyên)
+    // Xử lý Hủy phòng (Đã cập nhật logic thông báo)
     const handleCancelBooking = async () => {
-        if (window.confirm(`Bạn có chắc muốn hủy đặt phòng ${history.room_name} không?`)) {
+        // 1. Xác định nội dung thông báo dựa trên trạng thái
+        let confirmMessage = "";
+        const { status, room_name } = history;
+
+        if (status === "Đã thanh toán") {
+            confirmMessage = `Đơn đã thanh toán. Nếu hủy, bạn sẽ chờ hoàn tiền theo chính sách. Bạn có chắc chắn muốn hủy đơn đặt phòng ${room_name} không?`;
+        } else {
+            // Trường hợp "Chờ thanh toán", "Chờ xác nhận" hoặc null
+            confirmMessage = `Bạn có chắc muốn hủy đơn đặt phòng ${room_name} không?`;
+        }
+
+        // 2. Hiển thị thông báo xác nhận
+        if (window.confirm(confirmMessage)) {
             setIsProcessing(true);
+            setApiError(""); // Xóa lỗi cũ nếu có
             try {
                 await axios.post(`http://127.0.0.1:8000/api/bookings/${history.id}/customer-cancel`);
                 onUpdate();
             } catch (err) {
                 setApiError(err.response?.data?.message || "Lỗi: Không thể hủy đơn.");
-            } finally { setIsProcessing(false); }
+            } finally { 
+                setIsProcessing(false); 
+            }
         }
     };
 

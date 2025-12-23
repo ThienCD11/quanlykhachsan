@@ -8,6 +8,16 @@ import BackToTop from "../components/BackToTop";
 import Messenger from "../components/Messenger";
 import { AuthContext } from "../App";
 import { useNavigate } from "react-router-dom";
+import userIcon from "../images/user.png"; // Import icon user
+
+// Hàm để ẩn tên: Thanh -> T*****h
+const maskName = (name) => {
+  if (!name) return "K*****h"; // Mặc định nếu không có tên
+  const str = String(name);
+  const firstChar = str.charAt(0);
+  const lastChar = str.charAt(str.length - 1);
+  return `${firstChar}*****${lastChar}`;
+};
 
 const BookingPage = () => {
   const { roomId } = useParams();
@@ -347,33 +357,39 @@ const BookingPage = () => {
                       padding: '20px', 
                       backgroundColor: '#F9F9F9', 
                       borderRadius: '8px',
-                      borderLeft: '4px solid #00007aff'
+                      borderLeft: '5px solid #00007aff'
                     }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        {/* Thay div chứa user_id bằng icon user */}
                         <div style={{ 
                           width: '40px', 
                           height: '40px', 
                           borderRadius: '50%', 
-                          backgroundColor: '#00007aff', 
+                          backgroundColor: '#E0E0E0', // Màu nền nhẹ cho icon
                           display: 'flex', 
                           alignItems: 'center', 
                           justifyContent: 'center',
-                          color: 'white',
-                          fontWeight: 'bold',
-                          fontSize: '18px'
+                          overflow: 'hidden',
+                          padding: '0', 
                         }}>
-                          {review.user_id}
+                          <img 
+                            src={userIcon} 
+                            alt="user icon" 
+                            style={{ width: '40px', height: '40px', }} 
+                          />
                         </div>
+                        
                         <div>
-                          <p style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
-                            Khách hàng #{review.user_id}
-                          </p>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '5px' }}>
-                            {renderStars(review.rating)}
-                          </div>
+                        <p style={{ margin: 0, fontWeight: 'bold', fontSize: '16px' }}>
+                          {/* KIỂM TRA: review.user.name phải tồn tại nhờ with('user') ở BE */}
+                          {maskName(review.user.name)}
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '5px' }}>
+                          {renderStars(review.rating)}
                         </div>
+                      </div>
                       </div>
                       <span style={{ fontSize: '13px', color: '#666' }}>
                         {new Date(review.created_at).toLocaleDateString('vi-VN')}

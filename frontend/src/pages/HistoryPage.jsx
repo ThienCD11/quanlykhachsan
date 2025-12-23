@@ -257,14 +257,14 @@ const HistoryPage = () => {
                             {review.room?.name || `Phòng #${review.room_id}`}
                           </h3>
                           <span style={{ 
-                            padding: '3px 10px', 
+                            padding: '4px 12px', 
                             backgroundColor: '#00007aff', 
                             color: 'white', 
                             borderRadius: '12px',
                             fontSize: '12px',
                             fontWeight: 'bold'
                           }}>
-                            Booking #{review.booking_id}
+                            {review.booking?.invoice_id ? `#${review.booking.invoice_id}` : `#BK${review.booking_id}`}
                           </span>
                         </div>
                         
@@ -292,6 +292,7 @@ const HistoryPage = () => {
                         style={{
                           padding: '8px 15px',
                           backgroundColor: '#00008b',
+                          width: '130px',
                           color: 'white',
                           border: 'none',
                           borderRadius: '5px',
@@ -313,6 +314,7 @@ const HistoryPage = () => {
                         style={{
                           padding: '8px 15px',
                           backgroundColor: '#c2071aff',
+                          width: '130px',
                           color: 'white',
                           border: 'none',
                           borderRadius: '5px',

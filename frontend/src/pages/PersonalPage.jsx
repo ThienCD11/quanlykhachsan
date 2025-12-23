@@ -37,7 +37,7 @@ const PersonalPage = () => {
 
   const baseStorageUrl = "http://127.0.0.1:8000/storage/";
   const avatarUrl = user.avatar
-    ? `${baseStorageUrl}${user.avatar}`
+    ? `${baseStorageUrl}${user.avatar}?t=${new Date().getTime()}`
     : "https://placehold.co/250x250/e0e0e0/777?text=Avatar";
 
   const handleInputChange = (e) => {
@@ -108,11 +108,13 @@ const PersonalPage = () => {
       if (response.ok) {
         setSuccess("Cập nhật thông tin thành công!");
         setUser(data.user);
-        setIsEditing(false);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
+        
         
         if (formData.avatarPreview) {
           URL.revokeObjectURL(formData.avatarPreview);
         }
+        setIsEditing(false);
         
         setFormData({
           name: data.user.name,
@@ -388,11 +390,12 @@ const PersonalPage = () => {
                     height: "100%",
                   }}
                 >
-                  <label style={{ alignSelf: "flex-start", marginLeft: "10px" }}>
+                  <label style={{ alignSelf: "flex-start", margin: "0px 123px"}}>
                     Ảnh đại diện
                   </label>
                   <img
-                    src={formData.avatarPreview || avatarUrl}
+                    // Ưu tiên Preview khi đang chọn ảnh, nếu không thì dùng avatarUrl từ user context
+                    src={isEditing && formData.avatarPreview ? formData.avatarPreview : avatarUrl}
                     alt="Ảnh đại diện"
                     style={{
                       width: "250px",
@@ -402,6 +405,10 @@ const PersonalPage = () => {
                       border: "2px solid #adadadff",
                       marginTop: "10px",
                       marginBottom: "10px",
+                    }}
+                    // Thêm xử lý lỗi: Nếu ảnh die, chuyển về placeholder
+                    onError={(e) => {
+                      e.target.src = "https://placehold.co/250x250/e0e0e0/777?text=Error";
                     }}
                   />
                   {isEditing && (

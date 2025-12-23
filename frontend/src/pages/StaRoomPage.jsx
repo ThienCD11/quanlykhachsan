@@ -110,16 +110,32 @@ const StaRoomPage = () => {
     let x = a[sortConfig.key];
     let y = b[sortConfig.key];
 
-    if (!isNaN(x) && !isNaN(y)) {
-      x = parseFloat(x);
-      y = parseFloat(y);
+    // 1. XỬ LÝ RIÊNG CHO CỘT GIÁ PHÒNG (Số nguyên lớn, có dấu chấm/phẩy)
+    if (sortConfig.key === "price") {
+        let numX = parseFloat(String(x).replace(/[^0-9]/g, "")) || 0;
+        let numY = parseFloat(String(y).replace(/[^0-9]/g, "")) || 0;
+        return sortConfig.direction === "asc" ? numX - numY : numY - numX;
     }
 
-    if (typeof x === "string") x = x.toLowerCase();
-    if (typeof y === "string") y = y.toLowerCase();
+    // 2. XỬ LÝ RIÊNG CHO CỘT RATING (Số thập phân: 4.5, 3.8...)
+    if (sortConfig.key === "rating_avg") {
+        // Chuyển về số float, nếu là "Chưa có" hoặc NaN thì coi là 0
+        let numX = parseFloat(x) || 0;
+        let numY = parseFloat(y) || 0;
+        return sortConfig.direction === "asc" ? numX - numY : numY - numX;
+    }
 
-    if (x < y) return sortConfig.direction === "asc" ? -1 : 1;
-    if (x > y) return sortConfig.direction === "asc" ? 1 : -1;
+    // 3. XỬ LÝ CÁC CỘT SỐ KHÁC (STT, Sức chứa, Lượt đặt...)
+    if (!isNaN(parseFloat(x)) && isFinite(x) && !isNaN(parseFloat(y)) && isFinite(y)) {
+        return sortConfig.direction === "asc" ? parseFloat(x) - parseFloat(y) : parseFloat(y) - parseFloat(x);
+    }
+
+    // 4. XỬ LÝ CHUỖI VĂN BẢN (Tên phòng, Trạng thái)
+    let strX = String(x || "").toLowerCase();
+    let strY = String(y || "").toLowerCase();
+
+    if (strX < strY) return sortConfig.direction === "asc" ? -1 : 1;
+    if (strX > strY) return sortConfig.direction === "asc" ? 1 : -1;
     return 0;
   });
 

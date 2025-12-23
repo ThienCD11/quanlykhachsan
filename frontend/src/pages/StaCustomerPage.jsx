@@ -8,22 +8,6 @@ const StaCustomerPage = () => {
     const [openMenuId, setOpenMenuId] = useState(null); 
     const menuRef = useRef(null); 
 
-    // --- LOGIC ĐÓNG MENU KHI CLICK RA NGOÀI ---
-    // useEffect(() => {
-    //     const handleClickOutside = (event) => {
-    //         if (openMenuId !== null && menuRef.current && !menuRef.current.contains(event.target)) {
-    //             setOpenMenuId(null);
-    //         }
-    //     };
-
-    //     document.addEventListener("mousedown", handleClickOutside);
-        
-    //     return () => {
-    //         document.removeEventListener("mousedown", handleClickOutside);
-    //     };
-    // }, [openMenuId]);
-
-    // --- LOGIC FETCH DỮ LIỆU ---
 
     const fetchCustomers = useCallback(() => {
         axios.get("http://127.0.0.1:8000/api/statistic/customers")
@@ -135,8 +119,8 @@ const StaCustomerPage = () => {
         btnDisable: { color: "#ffffffff", fontWeight: "bold", background: "#c38a05ff" }, 
         btnActivate: { color: "#ffffffff", fontWeight: "bold", background: "#009205ff" }, 
         btnDelete: { color: "#ffffffff", fontWeight: "bold", background: "#b90f03ff" }, 
-        activeStatus: { color: '#006400', backgroundColor: '#b4f5b4ff', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' },
-        inactiveStatus: { color: '#9b0101ff', backgroundColor: '#fcc0c0ff', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold' },
+        activeStatus: { color: '#006400', backgroundColor: '#b4f5b4ff', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', display: 'inline-block', minWidth: '100px' },
+        inactiveStatus: { color: '#9b0101ff', backgroundColor: '#fcc0c0ff', padding: '4px 8px', borderRadius: '4px', fontWeight: 'bold', display: 'inline-block', minWidth: '100px' },
     };
 
     const tableStyle = {
@@ -174,7 +158,7 @@ const StaCustomerPage = () => {
                     <tr>
                         <th style={{...tableHeaderStyle, width: '50px', textAlign: 'center'}}>STT</th>
                         <th style={tableHeaderStyle}>Tên</th>
-                        <th style={tableHeaderStyle}>SĐT</th>
+                        <th style={{...tableHeaderStyle, textAlign: 'left'}}>SĐT</th>
                         <th style={tableHeaderStyle}>Email</th>
                         <th style={tableHeaderStyle}>Địa chỉ</th>
                         <th style={{...tableHeaderStyle, textAlign: 'center'}}>Tổng đơn</th>
@@ -202,14 +186,14 @@ const StaCustomerPage = () => {
                                 <tr key={customer.id}>
                                     <td style={{...tableCellStyle, textAlign: 'center'}}>{customer.stt}</td>
                                     <td style={{...tableCellStyle, }}>{customer.name}</td>
-                                    <td style={tableCellStyle}>{customer.phone}</td>
+                                    <td style={{...tableCellStyle, textAlign: 'left'}}>{customer.phone}</td>
                                     <td style={tableCellStyle}>{customer.email}</td>
                                     <td style={tableCellStyle}>{customer.address}</td>
                                     <td style={{...tableCellStyle, textAlign: 'center'}}>{customer.total_bookings}</td>
                                     <td style={{...tableCellStyle, textAlign: 'center'}}>
                                         {customer.paid_bookings}
                                     </td>
-                                    <td style={{...tableCellStyle, }}>
+                                    <td style={{...tableCellStyle, textAlign: 'center'}}>
                                         <span style={isActive ? styles.activeStatus : styles.inactiveStatus}>
                                             {isActive ? 'Hoạt động' : 'Vô hiệu hóa'}
                                         </span>
@@ -226,6 +210,8 @@ const StaCustomerPage = () => {
                                                     borderRadius: '4px',
                                                     fontWeight: 'bold',
                                                     cursor: 'default',
+                                                    display: 'inline-block', 
+                                                    minWidth: '90px' 
                                                 }}
                                             >
                                                 ADMIN
@@ -243,6 +229,8 @@ const StaCustomerPage = () => {
                                                     cursor: 'pointer',
                                                     fontWeight: 'bold',
                                                     transition: 'background-color 0.2s',
+                                                    display: 'inline-block', 
+                                                    minWidth: '90px' 
                                                 }}
                                                 onMouseEnter={(e) => e.target.style.backgroundColor = '#000266ff'}
                                                 onMouseLeave={(e) => e.target.style.backgroundColor = '#00008b'}

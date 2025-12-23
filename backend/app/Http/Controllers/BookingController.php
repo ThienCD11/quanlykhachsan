@@ -80,11 +80,24 @@ class BookingController extends Controller
                 return response()->json(['message' => 'Phòng không tồn tại.'], 404);
             }
 
-            // 3. Tạo base invoice_id (phần đầu không đổi)
-            $roomNamePrefix = strtoupper(substr($room->name, 0, 3));
+            // 3. Xử lý logic tạo mã tiền tố phòng (Prefix)
+            $name = trim($room->name);
+            $words = explode(' ', $name); // Tách tên phòng thành mảng các từ
+
+            if (count($words) >= 2) {
+                // Nếu có từ 2 chữ trở lên (ví dụ: Double Double, Group Deluxe)
+                // Lấy 2 ký tự của chữ đầu + 1 ký tự của chữ sau
+                $firstPart = substr($words[0], 0, 2);
+                $secondPart = substr($words[1], 0, 1);
+                $roomNamePrefix = strtoupper($firstPart . $secondPart);
+            } else {
+                // Nếu chỉ có 1 chữ hoặc trường hợp khác
+                // Lấy 3 ký tự đầu như cũ
+                $roomNamePrefix = strtoupper(substr($name, 0, 3));
+            }
+
             $currentDate = Carbon::now()->format('dm'); // NgàyTháng hiện tại
-            
-            $baseInvoiceId = $roomNamePrefix . $currentDate; // Ví dụ: 01STA2710
+            $baseInvoiceId = $roomNamePrefix . $currentDate; // Ví dụ: DOD2312 hoặc GRD2312
 
             // Đếm số lượng booking trong ngày hôm nay có invoice_id bắt đầu bằng $baseInvoiceId
             $todayBookingsCount = Booking::where('invoice_id', 'like', $baseInvoiceId . 'S%')
@@ -93,9 +106,8 @@ class BookingController extends Controller
 
             // Tạo số thứ tự (S1, S2, ...)
             $sequenceNumber = $todayBookingsCount + 1;
-            $invoiceId = $baseInvoiceId . 'S' . $sequenceNumber; // Ví dụ: 01STA2710S1
-
-
+            $invoiceId = $baseInvoiceId . 'S' . $sequenceNumber; // Ví dụ: DOD2312S1
+            
             // 4. Chuẩn bị dữ liệu để tạo Booking (giữ nguyên)
             $bookingData = [
                 'room_id' => $validatedData['room_id'],

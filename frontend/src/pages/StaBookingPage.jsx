@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import BackToTop from "../components/BackToTop";
-import { FaSort } from "react-icons/fa";
 
 const StaBookingPage = () => {
   const [bookings, setBookings] = useState([]);
@@ -10,6 +9,10 @@ const StaBookingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -48,38 +51,36 @@ const StaBookingPage = () => {
     return () => clearInterval(interval);
   }, [fetchBookings]);
 
-  // --- HÀM XUẤT HÓA ĐƠN ---
-  const handleExportInvoice = async (id) => {
+  // Thêm invoiceId vào tham số của hàm
+  const handleExportInvoice = async (id, invoiceId) => {
     try {
-        // Tham số 1: URL
-        // Tham số 2: Body data (truyền object rỗng {} nếu không gửi dữ liệu lên)
-        // Tham số 3: Cấu hình config (chứa responseType)
         const response = await axios.post(
             `http://localhost:8000/api/statistic/bookings/${id}/export-invoice`, 
             {}, 
             { responseType: 'blob' } 
         );
 
-        // Kiểm tra nếu file nhận được là PDF
         const blob = new Blob([response.data], { type: 'application/pdf' });
         const url = window.URL.createObjectURL(blob);
         
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `hoadon_${id}.pdf`);
+        
+        // ĐỔI TÊN Ở ĐÂY: Sử dụng invoiceId thay vì id database
+        link.setAttribute('download', `#${invoiceId}.pdf`); 
+        
         document.body.appendChild(link);
         link.click();
         
-        // Cleanup
         link.parentNode.removeChild(link);
         window.URL.revokeObjectURL(url);
     } catch (err) {
         console.error("Lỗi chi tiết:", err);
-        // Nếu lỗi 500, có thể do Backend chưa cài DomPDF hoặc lỗi code Blade
         alert("Lỗi hệ thống khi tạo PDF. Kiểm tra lại Backend!");
     }
   };
 
+  // Các hàm xử lý trạng thái (Giữ nguyên logic của bạn)
   const handleConfirm = async (id) => {
     try {
       const res = await axios.post(`http://localhost:8000/api/statistic/bookings/${id}/confirm`);
@@ -167,8 +168,7 @@ const StaBookingPage = () => {
     return `${day}-${month}-${year}`;
   };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15;
+  // Logic phân trang
   const totalItems = bookings.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -183,7 +183,6 @@ const StaBookingPage = () => {
       display: "block",
       width: "100%",
       padding: "10px",
-      paddingLeft: "6px",
       border: "none",
       textAlign: "center",
       cursor: "pointer",
@@ -192,19 +191,19 @@ const StaBookingPage = () => {
       transition: "all 0.2s",
       fontWeight: "500",
     },
-    btnConfirm: { color: "#ffffffff", fontWeight: "bold", background: "#00008b" },
-    btnCancel: { color: "#ffffffff", fontWeight: "bold", background: "#b20d0dff" },
-    btnUse: { color: "#ffffffff", fontWeight: "bold", background: "#bcad00ff" },
-    btnComplete: { color: "#ffffffff", fontWeight: "bold", background: "#036e1cff" },
-    btnRefund: { color: "#ffffffff", fontWeight: "bold", background: "#782ea3ff" },
-    btnExport: { color: "#ffffffff", fontWeight: "bold", background: "#b20d0dff" }, // Màu xám đậm cho xuất file
+    btnConfirm: { color: "#ffffff", fontWeight: "bold", background: "#00008b" },
+    btnCancel: { color: "#ffffff", fontWeight: "bold", background: "#b20d0dff" },
+    btnUse: { color: "#ffffff", fontWeight: "bold", background: "#bcad00ff" },
+    btnComplete: { color: "#ffffff", fontWeight: "bold", background: "#036e1cff" },
+    btnRefund: { color: "#ffffff", fontWeight: "bold", background: "#782ea3ff" },
+    btnExport: { color: "#ffffff", fontWeight: "bold", background: "#b20d0dff" },
     statusBackgrounds: {
       "Chờ xác nhận": "#c5c5ffff",
       "Chờ thanh toán": "#ffe298ff",
       "Đã thanh toán": "#ebf3abff",
       "Đang sử dụng": "#fdcee4ff",
       "Chờ hoàn tiền": "#e4c0ffff",
-      "Hoàn thành": "#a4e8b4ff", // Thêm màu nền cho hoàn thành
+      "Hoàn thành": "#a4e8b4ff",
     },
     statusColors: {
       "Chờ xác nhận": "#00008b",
@@ -212,17 +211,21 @@ const StaBookingPage = () => {
       "Đã thanh toán": "#bcad00ff",
       "Đang sử dụng": "#b9007bff",
       "Chờ hoàn tiền": "#782ea3ff",
-      "Hoàn thành": "#036e1cff", // Thêm màu chữ cho hoàn thành
+      "Hoàn thành": "#036e1cff",
     },
-    statusText: { 
-        fontWeight: "bold", 
-        padding: "6px", 
-        borderRadius: "6px", 
+    // Style chung để đảm bảo các nút trạng thái dài bằng nhau
+    statusContainer: {
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: "6px",
+        padding: "6px 10px",
         fontSize: "13px",
-        display: "inline-block"
-    },
-    canceledStatus: { color: "#b40606ff", backgroundColor: "#ffc1c1ff" },   
-    refundedStatus: { color: "#5c5c5cff", backgroundColor: "#cececeff" },
+        fontWeight: "bold",
+        minWidth: "130px", // Đảm bảo độ rộng cố định
+        boxSizing: "border-box",
+        textAlign: "center"
+    }
   };
 
   const tableStyle = { width: "100%", borderCollapse: "collapse", backgroundColor: "white", borderRadius: "5px", overflow: "hidden", boxShadow: "0 4px 10px rgba(0,0,0,0.1)" };
@@ -248,99 +251,101 @@ const StaBookingPage = () => {
               <th style={tableHeaderStyle} onClick={() => handleSort("checkout")}>Ngày trả</th>
               <th style={tableHeaderStyle} onClick={() => handleSort("booking_at")}>Thời gian đặt</th>
               <th style={tableHeaderStyle} onClick={() => handleSort("total")}>Thanh toán</th>
-              <th style={{...tableHeaderStyle, paddingLeft: '25px'}} onClick={() => handleSort("status")}>Quản lý</th>
+              <th style={{...tableHeaderStyle, textAlign: 'center'}} onClick={() => handleSort("status")}>Quản lý</th>
             </tr>
           </thead>
           <tbody>
             {currentData.length === 0 ? (
               <tr><td colSpan="9" style={{ ...tableCellStyle, textAlign: "center" }}>Chưa có đơn đặt phòng nào.</td></tr>
             ) : (
-              currentData.map((b) => (
-                <tr key={b.id}>
-                  <td style={{ ...tableCellStyle, textAlign: "center" }}>{b.stt}</td>
-                  <td style={tableCellStyle}>{b.invoice_id}</td>
-                  <td style={tableCellStyle}>{b.customer}</td>
-                  <td style={tableCellStyle}>{b.room}</td>
-                  <td style={tableCellStyle}>{formatDate(b.checkin)}</td>
-                  <td style={tableCellStyle}>{formatDate(b.checkout)}</td>
-                  <td style={tableCellStyle}>{b.booking_at}</td>
-                  <td style={tableCellStyle}>{Number(b.total || 0).toLocaleString("vi-VN")}</td>
-                  <td style={tableCellStyle}>
-                    {/* SỬA LOGIC Ở ĐÂY: "Hoàn thành" giờ sẽ có menu dropdown */}
-                    {["Đã hủy", "Đã hoàn tiền"].includes(b.status) ? (
-                      <span style={{ ...styles.statusText, ...(b.status === "Đã hủy" ? styles.canceledStatus : styles.refundedStatus) }}>
-                        {b.status}
-                      </span>
-                    ) : (
-                      <div style={{ position: "relative", display: "inline-block" }}>
-                        {(() => {
-                          const currentStatusBG = styles.statusBackgrounds[b.status] || styles.statusBackgrounds["Chờ xác nhận"];
-                          const currentStatusColor = styles.statusColors[b.status] || styles.statusColors["Chờ xác nhận"];
-                          return (
-                            <div
-                              onClick={() => setOpenMenuId(openMenuId === b.id ? null : b.id)}
-                              style={{
-                                display: "flex", alignItems: "center", background: currentStatusBG, color: currentStatusColor,
-                                borderRadius: "6px", padding: "6px", cursor: "pointer", border: "1px solid white",
-                                fontSize: "13px", fontWeight: "bold", transition: "all 0.2s ease",
-                              }}
-                              onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.8)")}
-                              onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
-                            >
-                              <span>{b.status || "Chờ xác nhận"} ▼</span>
-                            </div>
-                          );
-                        })()}
+              currentData.map((b, index) => {
+                // Sửa lỗi logic vị trí: chỉ dựa vào index của trang hiện tại (0-14)
+                const isLastThreeRows = index >= currentData.length - 2;
 
-                        {openMenuId === b.id && (
+                return (
+                  <tr key={b.id}>
+                    <td style={{ ...tableCellStyle, textAlign: "center" }}>{b.stt}</td>
+                    <td style={tableCellStyle}>{b.invoice_id}</td>
+                    <td style={tableCellStyle}>{b.customer}</td>
+                    <td style={tableCellStyle}>{b.room}</td>
+                    <td style={tableCellStyle}>{formatDate(b.checkin)}</td>
+                    <td style={tableCellStyle}>{formatDate(b.checkout)}</td>
+                    <td style={tableCellStyle}>{b.booking_at}</td>
+                    <td style={tableCellStyle}>{Number(b.total || 0).toLocaleString("vi-VN")}</td>
+                    <td style={{ ...tableCellStyle, textAlign: "center" }}>
+                      {["Đã hủy", "Đã hoàn tiền"].includes(b.status) ? (
+                        <span style={{ 
+                            ...styles.statusContainer, 
+                            color: b.status === "Đã hủy" ? "#b40606" : "#5c5c5c",
+                            backgroundColor: b.status === "Đã hủy" ? "#ffc1c1" : "#cecece"
+                        }}>
+                          {b.status}
+                        </span>
+                      ) : (
+                        <div style={{ position: "relative", display: "inline-block" }}>
                           <div
+                            onClick={() => setOpenMenuId(openMenuId === b.id ? null : b.id)}
                             style={{
-                              position: "absolute", zIndex: 10, right: 0,
-                              ...(startIndex + currentData.indexOf(b) > currentData.length - 3 ? { bottom: "100%", marginBottom: "2px" } : { top: "100%", marginTop: "2px" }),
-                              color: "white", border: "1px solid #ddd", borderRadius: "6px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", width: "120px", overflow: "hidden"
+                              ...styles.statusContainer,
+                              background: styles.statusBackgrounds[b.status] || "#c5c5ff",
+                              color: styles.statusColors[b.status] || "#00008b",
+                              cursor: "pointer",
+                              border: "1px solid white",
+                              transition: "all 0.2s ease",
                             }}
+                            onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(0.8)")}
+                            onMouseLeave={(e) => (e.currentTarget.style.filter = "brightness(1)")}
                           >
-                            {/* Menu cho Hoàn thành */}
-                            {b.status === "Hoàn thành" && (
-                              <button 
-                                style={{...styles.dropdownBtn, ...styles.btnExport}} 
-                                onClick={() => { handleExportInvoice(b.id); setOpenMenuId(null); }}
-                              >Xuất hóa đơn</button>
-                            )}
-
-                            {(b.status === "Chờ xác nhận" || !b.status) && (
-                              <>
-                                <button style={{...styles.dropdownBtn, ...styles.btnConfirm}} onClick={() => { handleConfirm(b.id); setOpenMenuId(null); }}>Xác nhận</button>
-                                <button style={{...styles.dropdownBtn, ...styles.btnCancel}} onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}>Hủy đơn</button>
-                              </>
-                            )}
-                            {b.status === "Chờ thanh toán" && (
-                              <button style={{...styles.dropdownBtn, ...styles.btnCancel}} onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}>Hủy đơn</button>
-                            )}
-                            {b.status === "Đã thanh toán" && (
-                              <>
-                                <button style={{...styles.dropdownBtn, ...styles.btnUse}} onClick={() => { handleUseRoom(b.id); setOpenMenuId(null); }}>Sử dụng</button>
-                                <button style={{...styles.dropdownBtn, ...styles.btnCancel}} onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}>Hủy đơn</button>
-                              </>
-                            )}
-                            {b.status === "Đang sử dụng" && (
-                              <button style={{...styles.dropdownBtn, ...styles.btnComplete}} onClick={() => { handleCompleteRoom(b.id); setOpenMenuId(null); }}>Hoàn thành</button>
-                            )}
-                            {b.status === "Chờ hoàn tiền" && (
-                              <button style={{...styles.dropdownBtn, ...styles.btnRefund}} onClick={() => { handleRefund(b.id); setOpenMenuId(null); }}>Hoàn tiền</button>
-                            )}
+                            <span>{b.status || "Chờ xác nhận"} ▼</span>
                           </div>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))
+
+                          {openMenuId === b.id && (
+                            <div
+                              style={{
+                                position: "absolute", zIndex: 10, right: 0,
+                                // Vị trí menu dựa trên index thực tế đang hiển thị trên màn hình
+                                ...(isLastThreeRows ? { bottom: "100%", marginBottom: "2px" } : { top: "100%", marginTop: "2px" }),
+                                backgroundColor: "white", border: "1px solid #ddd", borderRadius: "6px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)", width: "130px", overflow: "hidden"
+                              }}
+                            >
+                              {b.status === "Hoàn thành" && (
+                                <button style={{...styles.dropdownBtn, ...styles.btnExport}} onClick={() => { handleExportInvoice(b.id, b.invoice_id); setOpenMenuId(null); }}>Xuất hóa đơn</button>
+                              )}
+                              {(b.status === "Chờ xác nhận" || !b.status) && (
+                                <>
+                                  <button style={{...styles.dropdownBtn, ...styles.btnConfirm}} onClick={() => { handleConfirm(b.id); setOpenMenuId(null); }}>Xác nhận</button>
+                                  <button style={{...styles.dropdownBtn, ...styles.btnCancel}} onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}>Hủy đơn</button>
+                                </>
+                              )}
+                              {b.status === "Chờ thanh toán" && (
+                                <button style={{...styles.dropdownBtn, ...styles.btnCancel}} onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}>Hủy đơn</button>
+                              )}
+                              {b.status === "Đã thanh toán" && (
+                                <>
+                                  <button style={{...styles.dropdownBtn, ...styles.btnUse}} onClick={() => { handleUseRoom(b.id); setOpenMenuId(null); }}>Sử dụng</button>
+                                  <button style={{...styles.dropdownBtn, ...styles.btnCancel}} onClick={() => { handleCancel(b.id); setOpenMenuId(null); }}>Hủy đơn</button>
+                                </>
+                              )}
+                              {b.status === "Đang sử dụng" && (
+                                <button style={{...styles.dropdownBtn, ...styles.btnComplete}} onClick={() => { handleCompleteRoom(b.id); setOpenMenuId(null); }}>Hoàn thành</button>
+                              )}
+                              {b.status === "Chờ hoàn tiền" && (
+                                <button style={{...styles.dropdownBtn, ...styles.btnRefund}} onClick={() => { handleRefund(b.id); setOpenMenuId(null); }}>Hoàn tiền</button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
       )}
-      {/* Pagination Footer giữ nguyên */}
+
+      {/* Pagination Footer */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 5px", fontSize: "14px" }}>
         <span>SHOWING {startIndex + 1} TO {Math.min(startIndex + itemsPerPage, totalItems)} OF {totalItems}</span>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -351,6 +356,7 @@ const StaBookingPage = () => {
           <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} style={{ background: "none", border: "none", cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "18px" }}>❯</button>
         </div>
       </div>
+      <BackToTop />
     </div>
   );
 };

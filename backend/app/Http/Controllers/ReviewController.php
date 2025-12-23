@@ -10,7 +10,8 @@ class ReviewController extends Controller
     // Lấy đánh giá theo phòng
     public function getReviewsByRoom($roomId)
     {
-        $reviews = Review::where('room_id', $roomId)
+        $reviews = Review::with('user')
+            ->where('room_id', $roomId)
             ->orderBy('created_at', 'desc')
             ->get();
         
@@ -20,7 +21,7 @@ class ReviewController extends Controller
     // Lấy đánh giá theo user (kèm thông tin phòng)
     public function getReviewsByUser($userId)
     {
-        $reviews = Review::with('room')
+        $reviews = Review::with('room', 'booking')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->get();
