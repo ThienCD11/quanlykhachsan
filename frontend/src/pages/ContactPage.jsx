@@ -3,6 +3,7 @@ import axios from "axios";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import BackToTop from "../components/BackToTop";
+import Chatbot from "../components/Chatbot";
 import Messenger from "../components/Messenger";
 
 const ContactPage = () => {
@@ -210,6 +211,7 @@ const ContactPage = () => {
 
       <Footer />
       <BackToTop />
+      <Chatbot />
       <Messenger />
     </div>
   );

@@ -18,19 +18,21 @@ use App\Http\Controllers\StaCustomerController;
 use App\Http\Controllers\StaRevenueController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PasswordController;
+use App\Http\Controllers\ChatbotController;
 
 // ===== PUBLIC ROUTES =====
 
 // routes/api.php
+Route::post('/chatbot', [ChatbotController::class, 'chat']);
 Route::get('/reviews/room/{roomId}', [ReviewController::class, 'getReviewsByRoom']);
 Route::get('/reviews/user/{userId}', [ReviewController::class, 'getReviewsByUser']);
 Route::delete('/reviews/{id}', [ReviewController::class, 'deleteReview']);
 
-use App\Http\Controllers\PaymentController;
 Route::post('/vnpay/create-payment', [PaymentController::class, 'createPayment']);
 Route::get('/vnpay/callback', [PaymentController::class, 'callback']);
 
-use App\Http\Controllers\PasswordController;
 Route::post('/password/email', [PasswordController::class, 'sendResetCode']);
 Route::post('/password/reset', [PasswordController::class, 'resetPassword']);
 

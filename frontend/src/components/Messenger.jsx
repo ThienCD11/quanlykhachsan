@@ -30,8 +30,8 @@ const Messenger = () => {
                 position: 'fixed',
                 bottom: '30px', // Vị trí cố định ở dưới cùng
                 right: '30px', // Đã chuyển sang bên PHẢI
-                zIndex: 999, // Z-index thấp hơn BackToTop
-                // backgroundColor: '#0078FF', // Màu xanh Messenger
+                zIndex: 998, // Z-index thấp hơn BackToTop
+                backgroundColor: '#ffffffff', // Màu xanh Messenger
                 width: '50px',
                 height: '50px',
                 borderRadius: '50%',

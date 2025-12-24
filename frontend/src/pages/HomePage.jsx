@@ -9,6 +9,7 @@ import Footer from "../components/Footer";
 import About from "../components/About";
 import BackToTop from "../components/BackToTop";
 import Messenger from "../components/Messenger";
+import Chatbot from "../components/Chatbot";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
       <Contact />
       <Footer />
       <BackToTop />
+      <Chatbot />
       <Messenger />
     </div>
   );
