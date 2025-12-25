@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -39,72 +40,78 @@ class UserController extends Controller
     {
         try {
             $user = Auth::user();
+            $oldEmail = $user->email;
 
-            // Validate dữ liệu
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
+            // 1. Đồng bộ Quy tắc (Rules) giống lúc Đăng ký
+            $rules = [
+                'name' => 'required|string|max:50', // Khớp với Register (max 50)
                 'email' => 'required|email|unique:users,email,' . $user->id,
-                'phone' => 'nullable|string|max:15',
-                'address' => 'nullable|string|max:255',
-                'avatar' => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
-            ], [
-                'name.required' => 'Tên không được để trống',
-                'name.max' => 'Tên không được vượt quá 255 ký tự',
-                'email.required' => 'Email không được để trống',
-                'email.email' => 'Email không hợp lệ',
-                'email.unique' => 'Email đã được sử dụng',
-                'phone.max' => 'Số điện thoại không được vượt quá 15 ký tự',
-                'address.max' => 'Địa chỉ không được vượt quá 255 ký tự',
-                'avatar.image' => 'File phải là ảnh',
-                'avatar.mimes' => 'Ảnh phải có định dạng: jpeg, jpg, png, gif',
-                'avatar.max' => 'Kích thước ảnh không được vượt quá 2MB',
-            ]);
+                'phone' => [
+                    'required',
+                    'string',
+                    'regex:/^0\d{9}$/', // Khớp regex Register
+                    'unique:users,phone,' . $user->id
+                ],
+                'address' => 'required|string|max:50', // Khớp với Register
+                'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            ];
+
+            // 2. Đồng bộ Thông báo lỗi (Messages) giống Register
+            $messages = [
+                'name.required' => 'Trường Tên không được để trống.',
+                'name.max' => 'Tên không được vượt quá 50 ký tự.',
+                'phone.required' => 'Trường Số điện thoại không được để trống.',
+                'phone.regex' => 'Định dạng số điện thoại không hợp lệ (Phải bắt đầu bằng 0 và có 10 chữ số).',
+                'phone.unique' => 'Số điện thoại này đã được sử dụng.',
+                'email.required' => 'Trường Email không được để trống.',
+                'email.email' => 'Email phải là định dạng email hợp lệ.',
+                'email.unique' => 'Email này đã được sử dụng.',
+                'address.required' => 'Trường Địa chỉ không được để trống.',
+                'address.max' => 'Địa chỉ không được vượt quá 50 ký tự.',
+                'avatar.image' => 'File tải lên phải là hình ảnh.',
+                'avatar.mimes' => 'Hình ảnh phải có định dạng JPG, JPEG hoặc PNG.',
+                'avatar.max' => 'Kích thước hình ảnh không được vượt quá 2MB.',
+            ];
+
+            $validator = Validator::make($request->all(), $rules, $messages);
 
             if ($validator->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Dữ liệu không hợp lệ',
-                    'errors' => $validator->errors()
+                    'message' => $validator->errors()->first() // Lấy lỗi đầu tiên để hiển thị cho khớp FE
                 ], 422);
             }
 
-            // Cập nhật thông tin cơ bản
+            if ($request->email !== $oldEmail) {
+            // Xóa tất cả yêu cầu reset mật khẩu liên quan đến email cũ để tránh lỗi khóa ngoại
+            DB::table('password_resets')->where('email', $oldEmail)->delete();
+        }
+
+            // Cập nhật thông tin
             $user->name = $request->name;
             $user->email = $request->email;
-            $user->phone = $request->phone ?? '';
-            $user->address = $request->address ?? '';
+            $user->phone = $request->phone;
+            $user->address = $request->address;
 
-            // Xử lý upload ảnh đại diện
+            // Xử lý avatar
             if ($request->hasFile('avatar')) {
-                // Xóa ảnh cũ nếu có
                 if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
                     Storage::disk('public')->delete($user->avatar);
                 }
-
-                // Lưu ảnh mới
-                $file = $request->file('avatar');
-                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-                $avatarPath = $file->storeAs('avatars', $fileName, 'public');
+                $avatarPath = $request->file('avatar')->store('avatars', 'public');
                 $user->avatar = $avatarPath;
             }
 
-            // Lưu vào database
             $user->save();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cập nhật thông tin thành công',
+                'message' => 'Cập nhật thông tin thành công!',
                 'user' => $user
             ], 200);
 
         } catch (\Exception $e) {
-            \Log::error('Update Profile Error: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Có lỗi xảy ra khi cập nhật thông tin',
-                'error' => $e->getMessage()
-            ], 500);
+            return response()->json(['success' => false, 'message' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
         }
     }
 

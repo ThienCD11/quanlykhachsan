@@ -52,6 +52,7 @@ Route::prefix('rooms')->group(function () {
     Route::put('/{id}', [StaRoomController::class, 'update']);
     Route::post('/{id}', [StaRoomController::class, 'update']);
     Route::delete('/{id}', [StaRoomController::class, 'destroy']);
+    Route::post('/{id}/toggle-status', [StaRoomController::class, 'toggleStatus']);
 });
 
 // Facility Routes (Public)

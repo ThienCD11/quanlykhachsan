@@ -25,7 +25,7 @@ class ChatbotController extends Controller
 
         try {
             // 1. Chỉ lấy những dữ liệu thực sự cần thiết để tiết kiệm Token
-            $rooms = Room::all(['name', 'price', 'capacity', 'area', 'about']); 
+            $rooms = Room::all(['name', 'price', 'capacity', 'area', 'about', 'is_active']); 
             $facilities = Facility::all(['name', 'description']);
             
             // 2. Xử lý tra cứu Đơn hàng (Booking)
@@ -69,7 +69,7 @@ class ChatbotController extends Controller
                 ], JSON_UNESCAPED_UNICODE);
 
             // 4. Gọi API Gemini với cơ chế chuyển đổi giữa 2 model
-            $models = ["gemini-2.5-flash", "gemini-2.5-flash-lite"];
+            $models = ["gemini-2.5-flash-lite", "gemini-2.5-flash"];
             $lastResponse = null;
 
             foreach ($models as $model) {

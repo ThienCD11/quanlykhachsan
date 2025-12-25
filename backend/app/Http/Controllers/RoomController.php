@@ -6,36 +6,27 @@ use Illuminate\Http\Request;
 use App\Models\Room;
 use App\Models\Booking; 
 use Illuminate\Support\Facades\Validator;
-// use Illuminate\Support\Facades\Log;
 
 class RoomController extends Controller
 {
-    /**
-     * Hiển thị danh sách phòng, có lọc theo
-     * sức chứa và ngày tháng.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function index(Request $request)
     {
-        $query = Room::query();
+        // Thêm điều kiện: CHỈ lấy các phòng đang hoạt động (is_active = true)
+        $query = Room::query()->where('is_active', true);
 
-        // 1. Lọc theo sức chứa (nếu có)
+        // 1. Lọc theo sức chứa
         if ($request->filled('capacity') && $request->input('capacity') > 0) {
             $query->where('capacity', '>=', $request->input('capacity'));
         } 
 
         // 2. Lọc theo ngày (kiểm tra phòng còn trống)
         if ($request->filled('check_in') && $request->filled('check_out')) {
-
             $validator = Validator::make($request->all(), [
                 'check_in' => 'required|date|after_or_equal:today',
                 'check_out' => 'required|date|after:check_in',
             ], [
-                // <<< THÊM MẢNG NÀY ĐỂ DỊCH LỖI (Giải pháp cho Q2 & Q3)
                 'check_in.required' => 'Vui lòng chọn ngày nhận phòng.',
-                'check_in.after_or_equal' => 'Ngày nhận phòng phải là hôm nay hoặc một ngày sau đó.', // <-- Đây là thông báo bạn muốn (Q3)
+                'check_in.after_or_equal' => 'Ngày nhận phòng phải là hôm nay hoặc một ngày sau đó.',
                 'check_out.required' => 'Vui lòng chọn ngày trả phòng.',
                 'check_out.after' => 'Ngày trả phòng phải sau ngày nhận phòng.'    
             ]);
@@ -67,9 +58,8 @@ class RoomController extends Controller
             $query->where('price', '<=', $request->input('max_price'));
         }
 
-        // 3. Lấy kết quả ĐÃ LỌC
         $filteredRooms = $query->get();
-        // 4. Áp dụng map() 
+        
         $rooms = $filteredRooms->map(function ($room) {
             return [
                 'id' => $room->id,
@@ -79,14 +69,26 @@ class RoomController extends Controller
                 'capacity' => $room->capacity,
                 'area' => $room->area,
                 'about' => $room->about,
+                'is_active' => $room->is_active, // Trả về để FE có thể dùng nếu cần
             ];
         });
 
         return response()->json($rooms);
     }
 
-    public function show(Room $room)
+    public function show($id)
     {
+        // Chỉnh sửa ở đây: Dùng find và kiểm tra thủ công 
+        // để chặn khách truy cập trực tiếp ID phòng bảo trì qua URL
+        $room = Room::where('id', $id)->where('is_active', true)->first();
+
+        if (!$room) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Phòng này hiện đang bảo trì hoặc không tồn tại.'
+            ], 404);
+        }
+
         return response()->json([
             'id' => $room->id,
             'name' => $room->name,

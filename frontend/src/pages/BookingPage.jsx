@@ -89,6 +89,11 @@ const BookingPage = () => {
       return;
     }
 
+    if (user.role === 'admin') {
+      alert("Tài khoản Quản trị viên (Admin) không có chức năng đặt phòng. Vui lòng dùng tài khoản khách hàng!");
+      return;
+    }
+
     if (!room) {
       alert("Thông tin phòng chưa được tải xong, vui lòng đợi giây lát.");
       setError("Thông tin phòng chưa được tải xong, vui lòng đợi giây lát.");

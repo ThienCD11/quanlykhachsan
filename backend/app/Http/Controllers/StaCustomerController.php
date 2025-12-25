@@ -69,57 +69,29 @@ class StaCustomerController extends Controller
     /**
      * Vô hiệu hóa (hoặc kích hoạt) tài khoản.
      */
-    // public function toggleActive(User $user)
-    // {
-    //     // Kiểm tra an toàn: Không cho phép vô hiệu hóa Admin khác
-    //     if ($user->role === 'admin' && $user->id !== auth()->id()) {
-    //          return response()->json(['message' => 'Không thể vô hiệu hóa tài khoản Admin khác.'], 403);
-    //     }
-
-    //     // Đảo ngược trạng thái
-    //     $user->is_active = !$user->is_active;
-    //     $user->save();
-
-    //     $action = $user->is_active ? 'Kích hoạt' : 'Vô hiệu hóa';
-
-    //     return response()->json([
-    //         'message' => "Tài khoản '{$user->name}' đã được {$action} thành công.",
-    //         'is_active' => $user->is_active
-    //     ]);
-    // }
     public function toggleActive(User $user)
     {
-        // Kiểm tra an toàn: Không cho phép vô hiệu hóa Admin khác
         if ($user->role === 'admin' && $user->id !== auth()->id()) {
-             return response()->json(['message' => 'Không thể vô hiệu hóa tài khoản Admin khác.'], 403);
+             return response()->json(['message' => 'Không thể thao tác trên tài khoản Admin khác.'], 403);
         }
 
-        // --- YÊU CẦU 1: VÔ HIỆU HÓA ---
-        // $user->is_active là true nghĩa là tài khoản đang hoạt động và sắp bị Vô hiệu hóa
-        $isDeactivating = $user->is_active;
-
-        if ($isDeactivating) {
-            // Đếm các đơn đặt phòng ĐANG TIẾP DIỄN/CHƯA HOÀN THÀNH
-            // Sử dụng các trạng thái thường là 'đang có đơn đặt phòng'
+        // Chặn vô hiệu hóa nếu đang có đơn hoạt động
+        if ($user->is_active) {
             $ongoingBookingCount = $user->bookings()
                 ->whereIn('status', ['Chờ xác nhận', 'Chờ thanh toán', 'Đã thanh toán', 'Đang sử dụng', 'Chờ hoàn tiền'])
                 ->count();
 
             if ($ongoingBookingCount > 0) {
                 return response()->json([
-                    'message' => "Không thể vô hiệu hóa tài khoản '{$user->name}' vì còn {$ongoingBookingCount} đơn đặt phòng đang diễn ra.",
-                ], 400); // 400 Bad Request
+                    'message' => "Không thể vô hiệu hóa tài khoản '{$user->name}' vì còn {$ongoingBookingCount} đơn đặt phòng chưa kết thúc.",
+                ], 422); // Trả về 422 để khớp với logic xử lý lỗi FE
             }
         }
-        // --- KẾT THÚC YÊU CẦU 1 ---
 
-
-        // Đảo ngược trạng thái
         $user->is_active = !$user->is_active;
         $user->save();
 
         $action = $user->is_active ? 'Kích hoạt' : 'Vô hiệu hóa';
-
         return response()->json([
             'message' => "Tài khoản '{$user->name}' đã được {$action} thành công.",
             'is_active' => $user->is_active
@@ -127,41 +99,41 @@ class StaCustomerController extends Controller
     }
 
     /**
-     * Xóa vĩnh viễn tài khoản người dùng và dữ liệu liên quan.
+     * Xóa vĩnh viễn tài khoản (Chỉ khi không còn đơn hoạt động)
      */
     public function destroy(User $user)
     {
-        // Kiểm tra an toàn: Không cho phép xóa Admin khác hoặc tài khoản của chính mình
         if ($user->role === 'admin' || $user->id === auth()->id()) {
              return response()->json(['message' => 'Không thể xóa tài khoản Admin hoặc tài khoản của chính bạn.'], 403);
+        }
+
+        // 1. Kiểm tra đơn hàng đang hoạt động
+        $ongoingBookingCount = $user->bookings()
+            ->whereIn('status', ['Chờ xác nhận', 'Chờ thanh toán', 'Đã thanh toán', 'Đang sử dụng', 'Chờ hoàn tiền'])
+            ->count();
+
+        if ($ongoingBookingCount > 0) {
+            return response()->json([
+                'message' => "Không thể xóa tài khoản này vì còn {$ongoingBookingCount} đơn đặt phòng chưa kết thúc!",
+            ], 422);
         }
         
         DB::beginTransaction();
         try {
-            // Xóa tất cả Booking của user này
+            // 2. Xóa sạch lịch sử liên quan (Đơn cũ, đánh giá...)
             $user->bookings()->delete(); 
-            
-            // Xóa tất cả Review của user này
             $user->reviews()->delete();
+            // $user->suggestions()->delete(); 
             
-            // Xóa tất cả Suggestion của user này
-            // $user->suggestions()->delete(); // <-- Đã thêm xóa Suggestion
-            
-            // Xóa người dùng
             $user->delete();
-
             DB::commit();
+
+            return response()->json([
+                'message' => "Tài khoản '{$user->name}' và toàn bộ lịch sử đã được xóa vĩnh viễn."
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            // Ghi log lỗi để debug
-            \Log::error("Lỗi xóa user ID: {$user->id}. Lỗi: " . $e->getMessage());
-            return response()->json([
-                'message' => 'Lỗi hệ thống: Không thể xóa dữ liệu liên quan hoặc tài khoản người dùng.',
-            ], 500);
+            return response()->json(['message' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
         }
-
-        return response()->json([
-            'message' => "Tài khoản '{$user->name}' và toàn bộ dữ liệu liên quan đã được xóa vĩnh viễn."
-        ]);
     }
 }

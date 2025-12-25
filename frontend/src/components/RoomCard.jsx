@@ -1,11 +1,12 @@
-// src/components/RoomCard.jsx
-
 import React from "react";
 import logo from "../images/logo.png";
 import "../css/RoomCard.css";
 import { Link } from "react-router-dom";
 
 const RoomCard = ({ room }) => {
+  // Kiểm tra trạng thái is_active
+  const isActive = room.is_active;
+
   return (
     <div className="room-card">
       <img src={room.image_url} alt={room.name} className="room-image" /> 
@@ -19,10 +20,18 @@ const RoomCard = ({ room }) => {
         </div>
         <div className="room-action">
           <img src={logo} alt="logo" className="room-logo" />
-          {/* SỬA DÒNG NÀY: Truyền ID của phòng vào URL */}
-          <Link to={`/booking/${room.id}`} className="book-now-btn">
-            Xem chi tiết
-          </Link>
+          
+          {isActive ? (
+            <Link to={`/booking/${room.id}`} className="book-now-btn">
+              Xem chi tiết
+            </Link>
+          ) : (
+            <button className="book-now-btn disabled-btn" disabled 
+                    style={{ backgroundColor: '#ccc', cursor: 'not-allowed' }}>
+              Đang bảo trì
+            </button>
+          )}
+          
         </div>
       </div>
     </div>

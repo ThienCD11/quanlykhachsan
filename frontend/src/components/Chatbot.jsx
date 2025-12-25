@@ -15,7 +15,7 @@ const Chatbot = () => {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
-
+ 
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;

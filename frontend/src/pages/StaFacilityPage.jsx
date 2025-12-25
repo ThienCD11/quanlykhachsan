@@ -326,7 +326,7 @@ const StaFacilityPage = () => {
                     <img 
                       src={`http://127.0.0.1:8000/${facility.icon}`} 
                       alt={facility.name} 
-                      style={{ width: '40px', height: '40px', objectFit: 'contain' }} 
+                      style={{ width: '50px', height: '50px', objectFit: 'contain' }} 
                     />
                   ) : (
                     getIconComponent(facility.name)
@@ -339,7 +339,7 @@ const StaFacilityPage = () => {
                     onClick={() => handleOpenEditModal(facility)}
                     style={{
                       padding: '6px 12px',
-                      backgroundColor: '#4CAF50',
+                      backgroundColor: '#323ca7ff',
                       color: 'white',
                       border: 'none',
                       borderRadius: '4px',
