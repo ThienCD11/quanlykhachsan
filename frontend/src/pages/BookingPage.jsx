@@ -5,8 +5,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import arrow from "../images/arrow.png";
 import BackToTop from "../components/BackToTop";
-import Chatbot from "../components/Chatbot";
-import Messenger from "../components/Messenger";
 import { AuthContext } from "../App";
 import { useNavigate } from "react-router-dom";
 import userIcon from "../images/user.png"; // Import icon user
@@ -414,8 +412,6 @@ const BookingPage = () => {
       </section>
       <Footer />
       <BackToTop />
-      <Chatbot />
-      <Messenger />
     </div>
   );
 };

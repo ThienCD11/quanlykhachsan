@@ -3,8 +3,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import FacilityCard from "../components/FacilityCard";
 import BackToTop from "../components/BackToTop";
-import Messenger from "../components/Messenger";
-import Chatbot from "../components/Chatbot";
 
 const FacilitiesPage = () => {
   const [facilities, setFacilities] = useState([]);
@@ -65,8 +63,6 @@ const FacilitiesPage = () => {
       </section>
       <Footer />
       <BackToTop />
-      <Chatbot />
-      <Messenger />
     </>
   );
 };

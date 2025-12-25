@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect, useMemo } from 'react';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import './App.css';
 import HomePage from './pages/HomePage';
 import RoomPage from "./pages/RoomPage";
@@ -20,11 +20,66 @@ import StaCustomerPage from './pages/StaCustomerPage.jsx';
 import StaRevenuePage from './pages/StaRevenuePage.jsx';
 import StaFacilityPage from './pages/StaFacilityPage.jsx';
 import PaymentReturn from './pages/PaymentReturn';
+import Chatbot from './components/Chatbot';
+import Messenger from './components/Messenger.jsx';
+
 // 1. Tạo một Context để chia sẻ state 'user'
 export const AuthContext = createContext(null);
 
+// TẠO COMPONENT PHỤ ĐỂ SỬ DỤNG useLocation
+const MainContent = () => {
+  const location = useLocation();
+
+  // DANH SÁCH CÁC TRANG KHÔNG HIỆN CHATBOT
+  // Bạn có thể thêm hoặc bớt các đường dẫn vào mảng này
+  const hiddenPages = [
+    "/login",
+    "/register",
+    "/password",
+    "/statistic", // Chặn tất cả trang statistic và trang con của nó
+    "/payment-return"
+  ];
+
+  // Kiểm tra xem đường dẫn hiện tại có bắt đầu bằng các từ khóa trong danh sách ẩn không
+  const shouldHideChat = hiddenPages.some(path => location.pathname.startsWith(path));
+
+  return (
+    <>
+      <ScrollToTop />
+      {!shouldHideChat && (
+        <>
+          <Chatbot />
+          <Messenger />
+        </>
+      )}
+
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/rooms" element={<RoomPage />} />
+        <Route path="/facilities" element={<FacilitiesPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/password" element={<PasswordPage />} />
+        <Route path="/booking/:roomId" element={<BookingPage />} />
+        <Route path="/history/*" element={<HistoryPage />} />
+        <Route path="/personal" element={<PersonalPage />} />
+        <Route path="/payment-return" element={<PaymentReturn />} />
+
+        <Route path="/statistic/*" element={<StatisticPage />} >
+          <Route path="bookings" element={<StaBookingPage />} />
+          <Route path="rooms" element={<StaRoomPage />} />
+          <Route path="feedbacks" element={<StaFeedbackPage />} />
+          <Route path="customers" element={<StaCustomerPage />} />
+          <Route path="revenue" element={<StaRevenuePage />} />
+          <Route path="facilities" element={<StaFacilityPage/>} />
+        </Route>
+      </Routes>
+    </>
+  );
+};
+
 function App() {
-  // 2. Lấy thông tin user từ localStorage (nếu có) khi tải ứng dụng
   const [user, setUser] = useState(() => {
     const savedUser = sessionStorage.getItem('user');
     return savedUser ? JSON.parse(savedUser) : null;
@@ -32,7 +87,6 @@ function App() {
 
   const [token, setToken] = useState(() => sessionStorage.getItem('authToken'));
 
-  // 3. Tự động lưu thông tin user vào localStorage mỗi khi state 'user' thay đổi
   useEffect(() => {
     if (user) {
       sessionStorage.setItem('user', JSON.stringify(user));
@@ -41,7 +95,6 @@ function App() {
     }
   }, [user]);
 
-  // 2. THÊM useEffect MỚI ĐỂ LƯU TOKEN
   useEffect(() => {
     if (token) {
       sessionStorage.setItem('authToken', token);
@@ -50,52 +103,22 @@ function App() {
     }
   }, [token]);
 
-  // 3. CẬP NHẬT CONTEXT VALUE (Quan trọng nhất)
-  // Giờ đây Context sẽ cung cấp cả 4 giá trị
   const authContextValue = useMemo(() => ({
     user,
     setUser,
     token,
     setToken 
-  }), [user, token]); // Thêm 'token' vào dependency
+  }), [user, token]);
 
   return (
-    // 5. Cung cấp state 'user' và hàm 'setUser' cho toàn bộ ứng dụng
     <AuthContext.Provider value={authContextValue}>
+      {/* Router bọc ngoài cùng */}
       <Router>
-
-        <ScrollToTop />
-
-        <Routes>
-          {/* Các trang này (HomePage, RoomPage...) bên trong chúng có
-            render <Header /> và <Footer />. Header sẽ tự động
-            lấy 'user' từ Context.
-          */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="/rooms" element={<RoomPage />} />
-          <Route path="/facilities" element={<FacilitiesPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/password" element={<PasswordPage />} />
-          <Route path="/booking/:roomId" element={<BookingPage />} />
-          <Route path="/history/*" element={<HistoryPage />} />
-          <Route path="/personal" element={<PersonalPage />} />
-          <Route path="/payment-return" element={<PaymentReturn />} />
-
-          <Route path="/statistic/*" element={<StatisticPage />} >
-            <Route path="bookings" element={<StaBookingPage />} />
-            <Route path="rooms" element={<StaRoomPage />} />
-            <Route path="feedbacks" element={<StaFeedbackPage />} />
-            <Route path="customers" element={<StaCustomerPage />} />
-            <Route path="revenue" element={<StaRevenuePage />} />
-            <Route path="facilities" element={<StaFacilityPage/>} />
-          </Route>
-          
-        </Routes>
+        {/* Render MainContent chứa logic ẩn/hiện chatbot và Routes */}
+        <MainContent />
       </Router>
     </AuthContext.Provider>
   );
 }
- 
+
 export default App;

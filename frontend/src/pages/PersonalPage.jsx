@@ -12,7 +12,7 @@ const PersonalPage = () => {
   const [formData, setFormData] = useState({
     name: user?.name || "",
     phone: user?.phone || "",
-    email: user?.email || "",
+    email: user?.email || "", // Trường này sẽ được giữ nguyên
     address: user?.address || "",
     avatar: null,
     avatarPreview: null,
@@ -88,7 +88,7 @@ const PersonalPage = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("phone", formData.phone || "");
-      formDataToSend.append("email", formData.email);
+      formDataToSend.append("email", formData.email); // Vẫn gửi lên nhưng BE thường sẽ bỏ qua nếu bạn đã khóa
       formDataToSend.append("address", formData.address || "");
       
       if (formData.avatar) {
@@ -109,7 +109,6 @@ const PersonalPage = () => {
         setSuccess("Cập nhật thông tin thành công!");
         setUser(data.user);
         sessionStorage.setItem('user', JSON.stringify(data.user));
-        
         
         if (formData.avatarPreview) {
           URL.revokeObjectURL(formData.avatarPreview);
@@ -235,6 +234,14 @@ const PersonalPage = () => {
     boxSizing: "border-box",
   };
 
+  // Style riêng cho trường bị khóa (Email)
+  const lockedInputStyle = {
+    ...inputStyle,
+    backgroundColor: "#f0f0f0", // Màu nền tối hơn chút để báo hiệu không sửa được
+    color: "#666",
+    cursor: "not-allowed",
+  };
+
   const passwordInputStyle = {
     width: "100%",
     padding: "10px",
@@ -277,7 +284,6 @@ const PersonalPage = () => {
           width: "100%"
         }}>
           
-          {/* BOX 1: THÔNG TIN CÁ NHÂN */}
           <div
             style={{
               background: "white",
@@ -291,31 +297,13 @@ const PersonalPage = () => {
             </h2>
 
             {error && (
-              <div
-                style={{
-                  backgroundColor: "#ffebee",
-                  color: "#c62828",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginBottom: "15px",
-                  textAlign: "center",
-                }}
-              >
+              <div style={{ backgroundColor: "#ffebee", color: "#c62828", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
                 {error}
               </div>
             )}
 
             {success && (
-              <div
-                style={{
-                  backgroundColor: "#e8f5e9",
-                  color: "#2e7d32",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginBottom: "15px",
-                  textAlign: "center",
-                }}
-              >
+              <div style={{ backgroundColor: "#e8f5e9", color: "#2e7d32", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
                 {success}
               </div>
             )}
@@ -334,7 +322,7 @@ const PersonalPage = () => {
                   <input
                     type="text"
                     name="name"
-                    value={isEditing ? formData.name : user.name}
+                    value={formData.name}
                     onChange={handleInputChange}
                     style={inputStyle}
                     readOnly={!isEditing}
@@ -347,7 +335,7 @@ const PersonalPage = () => {
                   <input
                     type="text"
                     name="phone"
-                    value={isEditing ? formData.phone : user.phone}
+                    value={formData.phone}
                     onChange={handleInputChange}
                     style={inputStyle}
                     readOnly={!isEditing}
@@ -355,15 +343,13 @@ const PersonalPage = () => {
                 </div>
 
                 <div style={{ gridColumn: "span 2" }}>
-                  <label>Email</label>
+                  <label>Email (Không thể thay đổi)</label>
                   <input
                     type="email"
                     name="email"
-                    value={isEditing ? formData.email : user.email}
-                    onChange={handleInputChange}
-                    style={inputStyle}
-                    readOnly={!isEditing}
-                    required
+                    value={formData.email}
+                    style={lockedInputStyle} // Sử dụng style bị khóa
+                    readOnly={true} // LUÔN LUÔN KHÓA
                   />
                 </div>
 
@@ -372,7 +358,7 @@ const PersonalPage = () => {
                   <input
                     type="text"
                     name="address"
-                    value={isEditing ? formData.address : user.address}
+                    value={formData.address}
                     onChange={handleInputChange}
                     style={inputStyle}
                     readOnly={!isEditing}
@@ -394,7 +380,6 @@ const PersonalPage = () => {
                     Ảnh đại diện
                   </label>
                   <img
-                    // Ưu tiên Preview khi đang chọn ảnh, nếu không thì dùng avatarUrl từ user context
                     src={isEditing && formData.avatarPreview ? formData.avatarPreview : avatarUrl}
                     alt="Ảnh đại diện"
                     style={{
@@ -406,7 +391,6 @@ const PersonalPage = () => {
                       marginTop: "10px",
                       marginBottom: "10px",
                     }}
-                    // Thêm xử lý lỗi: Nếu ảnh die, chuyển về placeholder
                     onError={(e) => {
                       e.target.src = "https://placehold.co/250x250/e0e0e0/777?text=Error";
                     }}
@@ -475,7 +459,6 @@ const PersonalPage = () => {
             </form>
           </div>
 
-          {/* BOX 2: ĐỔI MẬT KHẨU */}
           <div
             style={{
               background: "white",
@@ -484,45 +467,18 @@ const PersonalPage = () => {
               boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
             }}
           >
-            <h2 style={{ 
-              textAlign: "center", 
-              color: "#00008b", 
-              marginBottom: "30px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "10px"
-            }}>
-              
+            <h2 style={{ textAlign: "center", color: "#00008b", marginBottom: "30px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
               <span>Đổi Mật Khẩu</span>
             </h2>
 
             {passwordError && (
-              <div
-                style={{
-                  backgroundColor: "#ffebee",
-                  color: "#c62828",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginBottom: "15px",
-                  textAlign: "center",
-                }}
-              >
+              <div style={{ backgroundColor: "#ffebee", color: "#c62828", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
                 {passwordError}
               </div>
             )}
 
             {passwordSuccess && (
-              <div
-                style={{
-                  backgroundColor: "#e8f5e9",
-                  color: "#2e7d32",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  marginBottom: "15px",
-                  textAlign: "center",
-                }}
-              >
+              <div style={{ backgroundColor: "#e8f5e9", color: "#2e7d32", padding: "10px", borderRadius: "5px", marginBottom: "15px", textAlign: "center" }}>
                 {passwordSuccess}
               </div>
             )}
@@ -547,9 +503,7 @@ const PersonalPage = () => {
             ) : (
               <form onSubmit={handleChangePassword}>
                 <div style={{ marginBottom: "20px" }}>
-                  <label style={{ display: "block", marginBottom: "8px" }}>
-                    Mật khẩu hiện tại
-                  </label>
+                  <label style={{ display: "block", marginBottom: "8px" }}>Mật khẩu hiện tại</label>
                   <input
                     type="password"
                     name="current_password"
@@ -562,9 +516,7 @@ const PersonalPage = () => {
                 </div>
 
                 <div style={{ marginBottom: "20px" }}>
-                  <label style={{ display: "block", marginBottom: "8px" }}>
-                    Mật khẩu mới
-                  </label>
+                  <label style={{ display: "block", marginBottom: "8px" }}>Mật khẩu mới</label>
                   <input
                     type="password"
                     name="new_password"
@@ -577,9 +529,7 @@ const PersonalPage = () => {
                 </div>
 
                 <div style={{ marginBottom: "25px" }}>
-                  <label style={{ display: "block", marginBottom: "8px" }}>
-                    Xác nhận mật khẩu mới
-                  </label>
+                  <label style={{ display: "block", marginBottom: "8px" }}>Xác nhận mật khẩu mới</label>
                   <input
                     type="password"
                     name="new_password_confirmation"
@@ -591,33 +541,19 @@ const PersonalPage = () => {
                   />
                 </div>
 
-                <div
-                  style={{
-                    display: "flex",
-                    gap: "15px",
-                    justifyContent: "center",
-                  }}
-                >
+                <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
                   <button
                     type="button"
                     onClick={handleCancelPasswordChange}
                     disabled={passwordLoading}
-                    style={{
-                      ...buttonStyle,
-                      backgroundColor: "#757575",
-                      color: "white",
-                    }}
+                    style={{ ...buttonStyle, backgroundColor: "#757575", color: "white" }}
                   >
                     Hủy
                   </button>
                   <button
                     type="submit"
                     disabled={passwordLoading}
-                    style={{
-                      ...buttonStyle,
-                      backgroundColor: passwordLoading ? "#ccc" : "#0b8519ff",
-                      color: "white",
-                    }}
+                    style={{ ...buttonStyle, backgroundColor: passwordLoading ? "#ccc" : "#0b8519ff", color: "white" }}
                   >
                     {passwordLoading ? "Đang xử lý..." : "Xác nhận đổi"}
                   </button>
@@ -625,7 +561,6 @@ const PersonalPage = () => {
               </form>
             )}
           </div>
-
         </div>
       </div>
       <Footer />

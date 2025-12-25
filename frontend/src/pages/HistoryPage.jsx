@@ -5,8 +5,6 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import HistoryCard from "../components/HistoryCard"; 
 import BackToTop from "../components/BackToTop";
-import Chatbot from "../components/Chatbot";
-import Messenger from "../components/Messenger";
 import { AuthContext } from "../App";
  
 const HistoryPage = () => {
@@ -374,8 +372,6 @@ const HistoryPage = () => {
       </section>
       <Footer />
       <BackToTop />
-      <Chatbot />
-      <Messenger />
     </>
   );
 };

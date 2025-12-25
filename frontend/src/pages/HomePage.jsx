@@ -24,8 +24,6 @@ export default function HomePage() {
       <Contact />
       <Footer />
       <BackToTop />
-      <Chatbot />
-      <Messenger />
     </div>
   );
 }

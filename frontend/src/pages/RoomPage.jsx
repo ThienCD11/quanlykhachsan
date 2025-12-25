@@ -6,8 +6,6 @@ import Footer from "../components/Footer";
 import RoomCard from "../components/RoomCard";
 import SearchRoom from "../components/SearchRoom"; 
 import BackToTop from "../components/BackToTop";
-import Chatbot from "../components/Chatbot";
-import Messenger from "../components/Messenger";
 import "../css/RoomPage.css"; 
 
 const RoomsPage = () => {
@@ -161,8 +159,6 @@ const RoomsPage = () => {
       </section>
       <Footer />
       <BackToTop />
-      <Chatbot />
-      <Messenger />
     </>
   );
 };
